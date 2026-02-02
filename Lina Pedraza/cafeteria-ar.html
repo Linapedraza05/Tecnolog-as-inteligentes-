@@ -1,0 +1,300 @@
+a<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cafetería en Realidad Virtual</title>
+    <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+    <style>
+      body { margin: 0; overflow: hidden; }
+      #info {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        color: white;
+        background: rgba(0, 0, 0, 0.7);
+        padding: 15px;
+        border-radius: 5px;
+        font-family: Arial, sans-serif;
+        z-index: 100;
+      }
+      #help {
+        position: absolute;
+        bottom: 10px;
+        right: 10px;
+        color: white;
+        background: rgba(0, 0, 0, 0.7);
+        padding: 10px;
+        border-radius: 5px;
+        font-family: Arial, sans-serif;
+        font-size: 12px;
+        z-index: 100;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="info">
+      <h2>☕ Cafetería en VR</h2>
+      <p>Explora la cafetería libremente</p>
+    </div>
+    
+    <div id="help">
+      <p><strong>Controles:</strong><br>
+      • Mouse: Mirar alrededor<br>
+      • WASD: Movimiento<br>
+      • Espacio: Saltar<br>
+      • VR: Botón VR arriba a la derecha
+      </p>
+    </div>
+
+    <a-scene background="color: #ECECEC" renderer="antialias: true; alpha: true">
+
+      <!-- Suelo de la cafetería -->
+      <a-plane id="floor" rotation="-90 0 0" width="15" height="15" color="#D2B48C" position="0 0 0"></a-plane>
+
+      <!-- Mostrador de la cafetería -->
+      <a-box id="counter" position="0 0.5 -2" width="8" height="1" depth="1.5" color="#8B4513"></a-box>
+
+      <!-- Caja registradora (cilindro) -->
+      <a-box id="register" position="-2 1 -2.2" width="0.6" height="0.5" depth="0.5" color="#FFD700"></a-box>
+      
+      <!-- Tapa de la caja registradora -->
+      <a-box id="register-top" position="-2 1.35 -2.2" width="0.65" height="0.1" depth="0.55" color="#FFA500"></a-box>
+      
+      <!-- Pantalla de la caja registradora -->
+      <a-plane id="register-screen" position="-2 1.15 -1.95" width="0.3" height="0.2" color="#000000" rotation="0 0 0"></a-plane>
+      
+      <!-- Botones de la caja registradora -->
+      <a-box id="register-btn1" position="-1.85 0.85 -2.2" width="0.08" height="0.08" depth="0.08" color="#333333"></a-box>
+      <a-box id="register-btn2" position="-2 0.85 -2.2" width="0.08" height="0.08" depth="0.08" color="#333333"></a-box>
+      <a-box id="register-btn3" position="-2.15 0.85 -2.2" width="0.08" height="0.08" depth="0.08" color="#333333"></a-box>
+
+      <!-- Máquina de café (caja roja) -->
+      <a-box id="coffee-machine" position="2 0.8 -2.2" width="1" height="1.5" depth="0.8" color="#DC143C"></a-box>
+
+      <!-- Pantalla de la máquina (rectángulo) -->
+      <a-plane id="machine-screen" position="2 1.3 -1.6" width="0.6" height="0.5" color="#000000" rotation="0 0 0"></a-plane>
+
+      <!-- Mesas de la cafetería -->
+      <!-- Mesa 1 (izquierda) -->
+      <a-box id="table1-top" position="-3 0.75 0.5" width="2" height="0.1" depth="2" color="#A0522D"></a-box>
+      <a-cylinder id="table1-leg1" position="-4 0.4 0" radius="0.1" height="0.8" color="#654321"></a-cylinder>
+      <a-cylinder id="table1-leg2" position="-2 0.4 0" radius="0.1" height="0.8" color="#654321"></a-cylinder>
+      <a-cylinder id="table1-leg3" position="-4 0.4 1" radius="0.1" height="0.8" color="#654321"></a-cylinder>
+      <a-cylinder id="table1-leg4" position="-2 0.4 1" radius="0.1" height="0.8" color="#654321"></a-cylinder>
+
+      <!-- Mesa 2 (derecha) -->
+      <a-box id="table2-top" position="3 0.75 0.5" width="2" height="0.1" depth="2" color="#A0522D"></a-box>
+      <a-cylinder id="table2-leg1" position="2 0.4 0" radius="0.1" height="0.8" color="#654321"></a-cylinder>
+      <a-cylinder id="table2-leg2" position="4 0.4 0" radius="0.1" height="0.8" color="#654321"></a-cylinder>
+      <a-cylinder id="table2-leg3" position="2 0.4 1" radius="0.1" height="0.8" color="#654321"></a-cylinder>
+      <a-cylinder id="table2-leg4" position="4 0.4 1" radius="0.1" height="0.8" color="#654321"></a-cylinder>
+
+      <!-- Sillas para mesa 1 -->
+      <a-box id="chair1" position="-3 0.3 -0.7" width="0.5" height="0.8" depth="0.5" color="#8B0000"></a-box>
+      <a-box id="chair2" position="-3 0.3 1.7" width="0.5" height="0.8" depth="0.5" color="#8B0000"></a-box>
+
+      <!-- Sillas para mesa 2 -->
+      <a-box id="chair3" position="3 0.3 -0.7" width="0.5" height="0.8" depth="0.5" color="#8B0000"></a-box>
+      <a-box id="chair4" position="3 0.3 1.7" width="0.5" height="0.8" depth="0.5" color="#8B0000"></a-box>
+
+      <!-- Tazas de café en las mesas -->
+      <!-- En mesa 1 -->
+      <a-cylinder id="coffee1" position="-3.8 0.85 0" radius="0.15" height="0.3" color="#0066CC"></a-cylinder>
+      <a-cylinder id="coffee2" position="-3.2 0.85 0.8" radius="0.15" height="0.3" color="#0066CC"></a-cylinder>
+      <a-cylinder id="coffee3" position="-2.5 0.85 0.2" radius="0.15" height="0.3" color="#0066CC"></a-cylinder>
+
+      <!-- En mesa 2 -->
+      <a-cylinder id="coffee4" position="2.2 0.85 0" radius="0.15" height="0.3" color="#0066CC"></a-cylinder>
+      <a-cylinder id="coffee5" position="2.8 0.85 0.8" radius="0.15" height="0.3" color="#0066CC"></a-cylinder>
+      <a-cylinder id="coffee6" position="3.5 0.85 0.2" radius="0.15" height="0.3" color="#0066CC"></a-cylinder>
+
+      <!-- Platos en las mesas -->
+      <!-- Platos en mesa 1 -->
+      <a-cylinder id="plate1" position="-3.3 0.85 0" radius="0.25" height="0.05" color="#FFFFFF"></a-cylinder>
+      <a-cylinder id="plate2" position="-2.7 0.85 0.8" radius="0.25" height="0.05" color="#FFFFFF"></a-cylinder>
+      <a-cylinder id="plate3" position="-2.0 0.85 0.2" radius="0.25" height="0.05" color="#FFFFFF"></a-cylinder>
+
+      <!-- Platos en mesa 2 -->
+      <a-cylinder id="plate4" position="2.7 0.85 0" radius="0.25" height="0.05" color="#FFFFFF"></a-cylinder>
+      <a-cylinder id="plate5" position="3.3 0.85 0.8" radius="0.25" height="0.05" color="#FFFFFF"></a-cylinder>
+      <a-cylinder id="plate6" position="4.0 0.85 0.2" radius="0.25" height="0.05" color="#FFFFFF"></a-cylinder>
+
+      <!-- Mesa 3 (frente izquierda) -->
+      <a-box id="table3-top" position="-3 0.75 5" width="2" height="0.1" depth="2" color="#A0522D"></a-box>
+      <a-cylinder id="table3-leg1" position="-4 0.4 4" radius="0.1" height="0.8" color="#654321"></a-cylinder>
+      <a-cylinder id="table3-leg2" position="-2 0.4 4" radius="0.1" height="0.8" color="#654321"></a-cylinder>
+      <a-cylinder id="table3-leg3" position="-4 0.4 6" radius="0.1" height="0.8" color="#654321"></a-cylinder>
+      <a-cylinder id="table3-leg4" position="-2 0.4 6" radius="0.1" height="0.8" color="#654321"></a-cylinder>
+
+      <!-- Mesa 4 (frente derecha) -->
+      <a-box id="table4-top" position="3 0.75 5" width="2" height="0.1" depth="2" color="#A0522D"></a-box>
+      <a-cylinder id="table4-leg1" position="2 0.4 4" radius="0.1" height="0.8" color="#654321"></a-cylinder>
+      <a-cylinder id="table4-leg2" position="4 0.4 4" radius="0.1" height="0.8" color="#654321"></a-cylinder>
+      <a-cylinder id="table4-leg3" position="2 0.4 6" radius="0.1" height="0.8" color="#654321"></a-cylinder>
+      <a-cylinder id="table4-leg4" position="4 0.4 6" radius="0.1" height="0.8" color="#654321"></a-cylinder>
+
+      <!-- Sillas para mesa 3 -->
+      <a-box id="chair5" position="-3 0.3 3.8" width="0.5" height="0.8" depth="0.5" color="#8B0000"></a-box>
+      <a-box id="chair6" position="-3 0.3 6.2" width="0.5" height="0.8" depth="0.5" color="#8B0000"></a-box>
+
+      <!-- Sillas para mesa 4 -->
+      <a-box id="chair7" position="3 0.3 3.8" width="0.5" height="0.8" depth="0.5" color="#8B0000"></a-box>
+      <a-box id="chair8" position="3 0.3 6.2" width="0.5" height="0.8" depth="0.5" color="#8B0000"></a-box>
+
+      <!-- Tazas de café en mesa 3 -->
+      <a-cylinder id="coffee7" position="-3.8 0.85 4.3" radius="0.15" height="0.3" color="#0066CC"></a-cylinder>
+      <a-cylinder id="coffee8" position="-3.2 0.85 5.1" radius="0.15" height="0.3" color="#0066CC"></a-cylinder>
+      <a-cylinder id="coffee9" position="-2.5 0.85 4.7" radius="0.15" height="0.3" color="#0066CC"></a-cylinder>
+
+      <!-- Tazas de café en mesa 4 -->
+      <a-cylinder id="coffee10" position="2.2 0.85 4.3" radius="0.15" height="0.3" color="#0066CC"></a-cylinder>
+      <a-cylinder id="coffee11" position="2.8 0.85 5.1" radius="0.15" height="0.3" color="#0066CC"></a-cylinder>
+      <a-cylinder id="coffee12" position="3.5 0.85 4.7" radius="0.15" height="0.3" color="#0066CC"></a-cylinder>
+
+      <!-- Platos en mesa 3 -->
+      <a-cylinder id="plate7" position="-3.3 0.85 4.3" radius="0.25" height="0.05" color="#FFFFFF"></a-cylinder>
+      <a-cylinder id="plate8" position="-2.7 0.85 5.1" radius="0.25" height="0.05" color="#FFFFFF"></a-cylinder>
+      <a-cylinder id="plate9" position="-2.0 0.85 4.7" radius="0.25" height="0.05" color="#FFFFFF"></a-cylinder>
+
+      <!-- Platos en mesa 4 -->
+      <a-cylinder id="plate10" position="2.7 0.85 4.3" radius="0.25" height="0.05" color="#FFFFFF"></a-cylinder>
+      <a-cylinder id="plate11" position="3.3 0.85 5.1" radius="0.25" height="0.05" color="#FFFFFF"></a-cylinder>
+      <a-cylinder id="plate12" position="4.0 0.85 4.7" radius="0.25" height="0.05" color="#FFFFFF"></a-cylinder>
+
+      <!-- PARED TRASERA (Fondo) -->
+      <a-plane id="back-wall" position="0 2 -7.5" width="15" height="4" color="#F5DEB3" rotation="0 0 0"></a-plane>
+      
+      <!-- Ventanas en pared trasera -->
+      <a-plane id="window1" position="-4 2.5 -7.4" width="1.8" height="1.2" color="#87CEEB" rotation="0 0 0"></a-plane>
+      <a-plane id="window3" position="4 2.5 -7.4" width="1.8" height="1.2" color="#87CEEB" rotation="0 0 0"></a-plane>
+
+      <!-- Puerta de entrada en pared trasera -->
+      <a-plane id="door" position="0 1.2 -7.4" width="1.2" height="2" color="#654321" rotation="0 0 0"></a-plane>
+
+      <!-- PARED IZQUIERDA -->
+      <a-plane id="left-wall" position="-7.5 2 0" width="15" height="4" color="#F5DEB3" rotation="0 90 0"></a-plane>
+      
+      <!-- Ventanas en pared izquierda -->
+      <a-plane id="window4" position="-7.4 2.5 -3" width="1.8" height="1.2" color="#87CEEB" rotation="0 90 0"></a-plane>
+      <a-plane id="window5" position="-7.4 2.5 2" width="1.8" height="1.2" color="#87CEEB" rotation="0 90 0"></a-plane>
+
+      <!-- PARED DERECHA -->
+      <a-plane id="right-wall" position="7.5 2 0" width="15" height="4" color="#F5DEB3" rotation="0 -90 0"></a-plane>
+      
+      <!-- Ventanas en pared derecha -->
+      <a-plane id="window6" position="7.4 2.5 -3" width="1.8" height="1.2" color="#87CEEB" rotation="0 -90 0"></a-plane>
+      <a-plane id="window7" position="7.4 2.5 2" width="1.8" height="1.2" color="#87CEEB" rotation="0 -90 0"></a-plane>
+
+      <!-- PARED FRONTAL (entrada) -->
+      <a-plane id="front-wall" position="0 2 7.5" width="15" height="4" color="#F5DEB3" rotation="0 180 0"></a-plane>
+      
+      <!-- Ventanas en pared frontal -->
+      <a-plane id="window8" position="-3 2.5 7.4" width="1.8" height="1.2" color="#87CEEB" rotation="0 0 0"></a-plane>
+      <a-plane id="window9" position="3 2.5 7.4" width="1.8" height="1.2" color="#87CEEB" rotation="0 0 0"></a-plane>
+
+      <!-- TECHO -->
+      <a-plane id="ceiling" position="0 4 0" rotation="90 0 0" width="15" height="15" color="#E8E8E8"></a-plane>
+
+      <!-- Luces en el techo que se pueden encender/apagar -->
+      <!-- Luz 1 (izquierda-atrás) -->
+      <a-sphere id="light1" position="-4 3.8 -3" radius="0.2" color="#FFFF00" class="clickable-light"></a-sphere>
+      <a-light id="light1-source" type="point" color="#FFFFFF" position="-4 3.5 -3" intensity="0.8" distance="15" decay="2"></a-light>
+
+      <!-- Luz 2 (centro-atrás) -->
+      <a-sphere id="light2" position="0 3.8 -3" radius="0.2" color="#FFFF00" class="clickable-light"></a-sphere>
+      <a-light id="light2-source" type="point" color="#FFFFFF" position="0 3.5 -3" intensity="0.8" distance="15" decay="2"></a-light>
+
+      <!-- Luz 3 (derecha-atrás) -->
+      <a-sphere id="light3" position="4 3.8 -3" radius="0.2" color="#FFFF00" class="clickable-light"></a-sphere>
+      <a-light id="light3-source" type="point" color="#FFFFFF" position="4 3.5 -3" intensity="0.8" distance="15" decay="2"></a-light>
+
+      <!-- Luz 4 (izquierda-frente) -->
+      <a-sphere id="light4" position="-4 3.8 3" radius="0.2" color="#FFFF00" class="clickable-light"></a-sphere>
+      <a-light id="light4-source" type="point" color="#FFFFFF" position="-4 3.5 3" intensity="0.8" distance="15" decay="2"></a-light>
+
+      <!-- Luz 5 (centro-frente) -->
+      <a-sphere id="light5" position="0 3.8 3" radius="0.2" color="#FFFF00" class="clickable-light"></a-sphere>
+      <a-light id="light5-source" type="point" color="#FFFFFF" position="0 3.5 3" intensity="0.8" distance="15" decay="2"></a-light>
+
+      <!-- Luz 6 (derecha-frente) -->
+      <a-sphere id="light6" position="4 3.8 3" radius="0.2" color="#FFFF00" class="clickable-light"></a-sphere>
+      <a-light id="light6-source" type="point" color="#FFFFFF" position="4 3.5 3" intensity="0.8" distance="15" decay="2"></a-light>
+
+      <!-- Luz ambiental -->
+      <a-light type="ambient" color="#FFFFFF" intensity="0.8"></a-light>
+
+      <!-- Luz puntual (foco de la cafetería) -->
+      <a-light type="point" color="#FFFFFF" position="0 3 0" intensity="1.2" distance="20" decay="2"></a-light>
+
+      <!-- Cámara con controles -->
+      <a-entity camera position="0 1.6 3" look-controls wasd-controls cursor="rayOrigin: mouse"></a-entity>
+
+    </a-scene>
+
+    <script>
+      // Script para mejorar la experiencia VR
+      document.addEventListener('DOMContentLoaded', function() {
+        console.log('🎉 Cafetería VR cargada correctamente');
+        
+        // Pulsación en las máquinas
+        const machineElements = document.querySelectorAll('[id^="machine"]');
+        machineElements.forEach(el => {
+          el.setAttribute('animation', 'property: scale; to: 1.05 1.05 1.05; loop: true; dur: 2000; dir: alternate; easing: ease-in-out;');
+        });
+
+        // Esperar a que A-Frame esté listo
+        const scene = document.querySelector('a-scene');
+        
+        if (scene.hasLoaded) {
+          initializeLights();
+        } else {
+          scene.addEventListener('loaded', initializeLights);
+        }
+
+        function initializeLights() {
+          // Sistema de luces interactivas
+          const lights = document.querySelectorAll('.clickable-light');
+          const lightStates = {};
+
+          lights.forEach((light) => {
+            const lightId = light.id;
+            const lightSourceId = lightId + '-source';
+            lightStates[lightId] = true; // Todas iniciadas en encendidas
+
+            // Hacer que la esfera sea cliqueable
+            light.setAttribute('class', 'clickable-light');
+            
+            light.addEventListener('click', function(event) {
+              event.stopPropagation();
+              
+              // Cambiar estado
+              lightStates[lightId] = !lightStates[lightId];
+              
+              // Obtener elementos
+              const sphere = document.getElementById(lightId);
+              const lightSource = document.getElementById(lightSourceId);
+              
+              if (lightStates[lightId]) {
+                // Encender
+                sphere.setAttribute('color', '#FFFF00');
+                lightSource.setAttribute('intensity', '0.8');
+                console.log(`💡 Luz ${lightId} encendida`);
+              } else {
+                // Apagar
+                sphere.setAttribute('color', '#333333');
+                lightSource.setAttribute('intensity', '0');
+                console.log(`🌑 Luz ${lightId} apagada`);
+              }
+            });
+          });
+        }
+
+        // Mensaje de bienvenida
+        console.log('Usa el ratón para mirar alrededor');
+        console.log('Usa WASD para moverte');
+        console.log('Haz clic en las esferas amarillas del techo para encender/apagar las luces');
+      });
+    </script>
+  </body>
+</html>
