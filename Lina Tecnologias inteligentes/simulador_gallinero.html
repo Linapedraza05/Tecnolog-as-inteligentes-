@@ -1,0 +1,1687 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador de Gallinero</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f4a460 0%, #ff8c00 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #f4a460 0%, #ff8c00 100%);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        header p {
+            font-size: 1.1em;
+            opacity: 0.95;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .section {
+            margin-bottom: 50px;
+        }
+
+        .section-title {
+            color: #ff8c00;
+            border-bottom: 3px solid #ff8c00;
+            padding-bottom: 10px;
+            margin-bottom: 30px;
+            font-size: 1.8em;
+        }
+
+        /* PANEL DE GALLINAS */
+        .gallinas-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .gallina-card {
+            background: linear-gradient(135deg, #ffe4b5 0%, #ffd699 100%);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: 3px solid #ff8c00;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            min-height: 450px;
+        }
+
+        .gallina-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(255, 140, 0, 0.3);
+        }
+
+        .gallina-card.alerta {
+            animation: alerta-pulse 0.6s infinite;
+        }
+
+        @keyframes alerta-pulse {
+            0%, 100% { box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); }
+            50% { box-shadow: 0 10px 30px rgba(255, 69, 0, 0.5); }
+        }
+
+        .gallina-nombre {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #8b4513;
+            margin-bottom: 15px;
+        }
+
+        .gallina-emojis {
+            font-size: 2.5em;
+            min-width: 50px;
+        }
+
+        .gallina-info {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .info-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .info-label {
+            color: #666;
+        }
+
+        .info-valor {
+            color: #ff8c00;
+            font-size: 1.1em;
+        }
+
+        .huevos-contador {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .huevos-numero {
+            font-size: 3em;
+            font-weight: bold;
+            color: #ff8c00;
+        }
+
+        .huevos-texto {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+
+        .barra-produccion {
+            background: #e0e0e0;
+            border-radius: 10px;
+            height: 30px;
+            overflow: hidden;
+            margin-bottom: 15px;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .barra-produccion-relleno {
+            height: 100%;
+            background: linear-gradient(90deg, #ff8c00 0%, #ffa500 100%);
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        .botones-gallina {
+            display: grid;
+            grid-template-columns: 1fr !important;
+            gap: 10px;
+            margin-top: auto;
+        }
+
+        .btn-pequeño {
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+            width: 100% !important;
+        }
+
+        .btn-recoger {
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            color: white;
+        }
+
+        .btn-recoger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(39, 174, 96, 0.4);
+        }
+
+        .btn-alimentar {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+        }
+
+        .btn-alimentar:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(52, 152, 219, 0.4);
+        }
+
+        .estado-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        .estado-lista {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .estado-produciendo {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .estado-descansando {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        /* PANEL DE ESTADÍSTICAS */
+        .stats-panel {
+            background: linear-gradient(135deg, #ffe4b5 0%, #ffd699 100%);
+            border-radius: 15px;
+            padding: 30px;
+            border: 3px solid #ff8c00;
+            margin-bottom: 40px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .stat-box {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-numero {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #ff8c00;
+        }
+
+        .stat-label {
+            color: #666;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        /* ALERTAS */
+        .alerta {
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            animation: deslizar 0.4s ease;
+        }
+
+        @keyframes deslizar {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .alerta-exito {
+            background: #d4edda;
+            border-left: 5px solid #27ae60;
+            color: #155724;
+        }
+
+        .alerta-advertencia {
+            background: #fff3cd;
+            border-left: 5px solid #f39c12;
+            color: #856404;
+        }
+
+        .alerta-critica {
+            background: #f8d7da;
+            border-left: 5px solid #e74c3c;
+            color: #721c24;
+            animation: parpadeo-alerta 0.6s infinite;
+        }
+
+        @keyframes parpadeo-alerta {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
+        .alerta-icono {
+            font-size: 1.5em;
+        }
+
+        .alerta-texto {
+            flex: 1;
+        }
+
+        /* COMPUERTAS LÓGICAS */
+        .logica-panel {
+            background: linear-gradient(135deg, #ffe4b5 0%, #ffd699 100%);
+            border-radius: 15px;
+            padding: 30px;
+            border: 3px solid #ff8c00;
+            margin-bottom: 40px;
+        }
+
+        .logica-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .logica-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .logica-card h3 {
+            color: #ff8c00;
+            margin-bottom: 15px;
+        }
+
+        .logica-resultado {
+            display: flex;
+            justify-content: space-around;
+            padding: 15px;
+            background: #f9fafb;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .logica-valor {
+            flex: 1;
+        }
+
+        .logica-valor-numero {
+            font-size: 2em;
+            font-weight: bold;
+            color: #ff8c00;
+        }
+
+        .logica-valor-texto {
+            font-size: 0.8em;
+            color: #999;
+            margin-top: 5px;
+        }
+
+        /* CONTROLES */
+        .controles {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .btn-grande {
+            padding: 15px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-simular {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+        }
+
+        .btn-simular:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(231, 76, 60, 0.4);
+        }
+
+        .btn-recoger-todo {
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            color: white;
+        }
+
+        .btn-recoger-todo:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(39, 174, 96, 0.4);
+        }
+
+        .btn-limpiar {
+            background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
+            color: white;
+        }
+
+        .btn-limpiar:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(149, 165, 166, 0.4);
+        }
+
+        /* HISTORIAL */
+        .historial {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 40px;
+        }
+
+        .historial h3 {
+            color: #ff8c00;
+            margin-bottom: 15px;
+        }
+
+        .evento {
+            padding: 10px;
+            margin-bottom: 10px;
+            border-left: 4px solid #ff8c00;
+            background: #f9fafb;
+            border-radius: 4px;
+            font-size: 0.95em;
+        }
+
+        .evento-tiempo {
+            color: #999;
+            font-size: 0.85em;
+        }
+
+        .evento-recoleccion {
+            border-left-color: #27ae60;
+            background: #f0fdf4;
+        }
+
+        .evento-alimentacion {
+            border-left-color: #3498db;
+            background: #f0f7ff;
+        }
+
+        .evento-puesta {
+            border-left-color: #f39c12;
+            background: #fffaf0;
+        }
+
+        footer {
+            background: #f5f5f5;
+            padding: 20px;
+            text-align: center;
+            color: #666;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                padding: 20px;
+            }
+
+            .gallinas-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .botones-gallina {
+                grid-template-columns: 1fr;
+            }
+
+            header h1 {
+                font-size: 1.8em;
+            }
+        }
+
+        .notificacion {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            animation: notificacion-entrada 0.4s ease, notificacion-salida 0.4s ease 4.6s;
+            z-index: 1000;
+        }
+
+        @keyframes notificacion-entrada {
+            from {
+                opacity: 0;
+                transform: translateX(100px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes notificacion-salida {
+            from {
+                opacity: 1;
+                transform: translateX(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateX(100px);
+            }
+        }
+
+        /* ESTILOS DE AMBIENTE */
+        .ambiente-panel {
+            background: linear-gradient(135deg, #ffe4b5 0%, #ffd699 100%);
+            border-radius: 15px;
+            padding: 30px;
+            border: 3px solid #ff8c00;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .ambiente-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        .ambiente-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .ambiente-card h3 {
+            color: #ff8c00;
+            margin-bottom: 15px;
+        }
+
+        .temperatura-display {
+            background: #f9fafb;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .temperatura-numero {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #ff8c00;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .temperatura-barra {
+            background: #e0e0e0;
+            border-radius: 10px;
+            height: 30px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .temperatura-relleno {
+            height: 100%;
+            background: linear-gradient(90deg, #3498db 0%, #ff8c00 50%, #e74c3c 100%);
+            transition: width 0.3s ease;
+        }
+
+        .temperatura-escala {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8em;
+            color: #666;
+        }
+
+        .temperatura-estado {
+            text-align: center;
+            padding: 8px 12px;
+            background: #d4edda;
+            color: #155724;
+            border-radius: 5px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .temperatura-estado.alerta {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .temperatura-estado.critica {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .limpieza-display {
+            background: #f9fafb;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .limpieza-numero {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #ff8c00;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .limpieza-barra {
+            background: #e0e0e0;
+            border-radius: 10px;
+            height: 30px;
+            overflow: hidden;
+        }
+
+        .limpieza-relleno {
+            height: 100%;
+            background: linear-gradient(90deg, #27ae60 0%, #2ecc71 100%);
+            transition: width 0.3s ease;
+        }
+
+        .limpieza-relleno.alerta {
+            background: linear-gradient(90deg, #f39c12 0%, #e67e22 100%);
+        }
+
+        .limpieza-relleno.critica {
+            background: linear-gradient(90deg, #e74c3c 0%, #c0392b 100%);
+        }
+
+        .limpieza-estado {
+            text-align: center;
+            padding: 8px 12px;
+            background: #d4edda;
+            color: #155724;
+            border-radius: 5px;
+            font-weight: 600;
+        }
+
+        .limpieza-estado.alerta {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .limpieza-estado.critica {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .btn-ambiente {
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+        }
+
+        .btn-ambiente:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(52, 152, 219, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🐔 Simulador de Gallinero</h1>
+            <p>Sistema de Monitoreo Inteligente de Producción de Huevos</p>
+        </header>
+
+        <div class="content">
+            <!-- PANEL DE AMBIENTE DEL GALLINERO -->
+            <div class="section">
+                <h2 class="section-title">🌡️ Control del Ambiente</h2>
+                <div class="ambiente-panel">
+                    <div class="ambiente-grid">
+                        <!-- TEMPERATURA -->
+                        <div class="ambiente-card">
+                            <h3>🌡️ Temperatura</h3>
+                            <div class="temperatura-display">
+                                <div class="temperatura-numero" id="tempNumero">20°C</div>
+                                <div class="temperatura-barra">
+                                    <div class="temperatura-relleno" id="tempRelleno" style="width: 50%;"></div>
+                                </div>
+                                <div class="temperatura-escala">
+                                    <span>5°C</span>
+                                    <span>15°C</span>
+                                    <span>25°C</span>
+                                    <span>35°C</span>
+                                </div>
+                            </div>
+                            <div class="temperatura-estado" id="tempEstado">✓ Óptima</div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px;">
+                                <button class="btn-ambiente" onclick="cambiarTemperatura(-2)">❄️ Bajar</button>
+                                <button class="btn-ambiente" onclick="cambiarTemperatura(2)">🔥 Subir</button>
+                            </div>
+                            <p style="font-size: 0.8em; color: #666; margin-top: 10px; text-align: center;">
+                                Óptimo: 18-24°C
+                            </p>
+                        </div>
+
+                        <!-- LIMPIEZA -->
+                        <div class="ambiente-card">
+                            <h3>🧹 Limpieza del Gallinero</h3>
+                            <div class="limpieza-display">
+                                <div class="limpieza-numero" id="limpiezaNumero">100%</div>
+                                <div class="limpieza-barra">
+                                    <div class="limpieza-relleno" id="limpiezaRelleno" style="width: 100%;"></div>
+                                </div>
+                            </div>
+                            <div class="limpieza-estado" id="limpiezaEstado">✓ Limpio</div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px;">
+                                <button class="btn-ambiente" onclick="limpiarGallinero()" style="background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%); color: white;">🧼 Limpiar</button>
+                                <button class="btn-ambiente" style="opacity: 0.5; cursor: not-allowed;" disabled>💩 Se ensucia sola</button>
+                            </div>
+                            <p style="font-size: 0.8em; color: #666; margin-top: 10px; text-align: center;">
+                                La suciedad reduce producción
+                            </p>
+                        </div>
+
+                        <!-- IMPACTO EN PRODUCCIÓN -->
+                        <div class="ambiente-card" style="grid-column: 1 / -1;">
+                            <h3>📊 Impacto en Producción</h3>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                                <div style="text-align: center;">
+                                    <div style="font-size: 0.9em; color: #999; margin-bottom: 5px;">🌡️ Temperatura</div>
+                                    <div style="font-size: 2em; font-weight: bold; color: #ff8c00;">
+                                        <span id="factorTemperatura">100</span>%
+                                    </div>
+                                </div>
+                                <div style="text-align: center;">
+                                    <div style="font-size: 0.9em; color: #999; margin-bottom: 5px;">🧹 Limpieza</div>
+                                    <div style="font-size: 2em; font-weight: bold; color: #ff8c00;">
+                                        <span id="factorLimpieza">100</span>%
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="margin-top: 15px; padding: 15px; background: #f9fafb; border-radius: 8px;">
+                                <div style="text-align: center; color: #666;">
+                                    <strong>Producción Final: <span id="produccionFinal" style="color: #ff8c00; font-size: 1.2em;">100%</span></strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PANEL DE ESTADÍSTICAS GENERALES -->
+            <div class="section">
+                <h2 class="section-title">📊 Estadísticas Generales del Gallinero</h2>
+                <div class="stats-panel">
+                    <div class="stats-grid">
+                        <div class="stat-box">
+                            <div class="stat-numero" id="totalHuevos">0</div>
+                            <div class="stat-label">🥚 Huevos Totales</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-numero" id="totalGallinas">4</div>
+                            <div class="stat-label">🐔 Gallinas</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-numero" id="gallinasListas">0</div>
+                            <div class="stat-label">⏰ Listas para Recoger</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-numero" id="gallinasProduciendo">0</div>
+                            <div class="stat-label">🔄 Produciendo</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-numero" id="totalRecolecciones">0</div>
+                            <div class="stat-label">✅ Recolecciones</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-numero" id="promedio">0%</div>
+                            <div class="stat-label">📈 Productividad</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ALERTAS -->
+            <div id="alertasContainer" style="margin-bottom: 30px;"></div>
+
+            <!-- CONTROLES -->
+            <div class="section">
+                <h2 class="section-title">⚙️ Controles del Sistema</h2>
+                <div class="controles">
+                    <button class="btn-grande btn-recoger-todo" onclick="recogerTodosLosHuevos()">
+                        🥚 Recoger Todos los Huevos
+                    </button>
+                    <button class="btn-grande btn-limpiar" onclick="resetearGallinero()">
+                        🔄 Resetear Sistema
+                    </button>
+                </div>
+            </div>
+
+            <!-- PANEL DE GALLINAS -->
+            <div class="section">
+                <h2 class="section-title">🐔 Gallinas en el Gallinero</h2>
+                <div class="gallinas-grid" id="gallinasContainer"></div>
+            </div>
+
+            <!-- COMPUERTAS LÓGICAS -->
+            <div class="section">
+                <h2 class="section-title">🔧 Lógica del Sistema de Compuertas</h2>
+                <div class="logica-panel">
+                    <div class="logica-grid">
+                        <!-- NOT: Gallina sin huevos -->
+                        <div class="logica-card">
+                            <h3>🚫 NOT - Gallina sin Huevos</h3>
+                            <p style="font-size: 0.9em; color: #666; margin-bottom: 15px;">Si huevos = 0, está lista para poner</p>
+                            <div class="logica-resultado">
+                                <div class="logica-valor">
+                                    <div style="font-size: 0.8em; color: #999;">Tiene huevos</div>
+                                    <div class="logica-valor-numero" id="logicaNOT">0</div>
+                                </div>
+                                <div style="font-size: 1.5em; color: #ccc;">→</div>
+                                <div class="logica-valor">
+                                    <div style="font-size: 0.8em; color: #999;">Resultado NOT</div>
+                                    <div class="logica-valor-numero" id="logicaNOTResult">1</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- AND: Gallina lista y productiva -->
+                        <div class="logica-card">
+                            <h3>✓ AND - Gallina Lista</h3>
+                            <p style="font-size: 0.9em; color: #666; margin-bottom: 15px;">Tiene huevos Y está activa</p>
+                            <div class="logica-resultado">
+                                <div class="logica-valor">
+                                    <div style="font-size: 0.8em; color: #999;">Con huevos</div>
+                                    <div class="logica-valor-numero" id="logicaConHuevos">0</div>
+                                </div>
+                                <div style="font-size: 1.5em; color: #ccc;">×</div>
+                                <div class="logica-valor">
+                                    <div style="font-size: 0.8em; color: #999;">Activa</div>
+                                    <div class="logica-valor-numero" id="logicaActiva">1</div>
+                                </div>
+                                <div style="font-size: 1.5em; color: #ccc;">→</div>
+                                <div class="logica-valor">
+                                    <div style="font-size: 0.8em; color: #999;">Lista</div>
+                                    <div class="logica-valor-numero" id="logicaANDResult">0</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- OR: Alguna gallina lista -->
+                        <div class="logica-card">
+                            <h3>⚡ OR - Alerta General</h3>
+                            <p style="font-size: 0.9em; color: #666; margin-bottom: 15px;">Alguna gallina O está pronta</p>
+                            <div class="logica-resultado">
+                                <div class="logica-valor">
+                                    <div style="font-size: 0.8em; color: #999;">Gallina 1 lista</div>
+                                    <div class="logica-valor-numero" id="logicaG1">0</div>
+                                </div>
+                                <div style="font-size: 1.5em; color: #ccc;">+</div>
+                                <div class="logica-valor">
+                                    <div style="font-size: 0.8em; color: #999;">Gallina 2+ lista</div>
+                                    <div class="logica-valor-numero" id="logicaG2">0</div>
+                                </div>
+                                <div style="font-size: 1.5em; color: #ccc;">→</div>
+                                <div class="logica-valor">
+                                    <div style="font-size: 0.8em; color: #999;">Recolectar</div>
+                                    <div class="logica-valor-numero" id="logicaORResult">0</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TABLAS DE VERDAD -->
+            <div class="section">
+                <h2 class="section-title">📊 Tablas de Verdad del Sistema</h2>
+                
+                <style>
+                    .tabla-verdad-grid {
+                        display: grid;
+                        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+                        gap: 25px;
+                    }
+
+                    .tabla-card {
+                        background: linear-gradient(135deg, #ffe4b5 0%, #ffd699 100%);
+                        border-radius: 15px;
+                        padding: 20px;
+                        border: 3px solid #ff8c00;
+                        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+                    }
+
+                    .tabla-card h3 {
+                        color: #ff8c00;
+                        margin-bottom: 15px;
+                        text-align: center;
+                    }
+
+                    .tabla-verdad {
+                        width: 100%;
+                        border-collapse: collapse;
+                        background: white;
+                        border-radius: 8px;
+                        overflow: hidden;
+                        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+                    }
+
+                    .tabla-verdad thead {
+                        background: linear-gradient(135deg, #ff8c00 0%, #ffa500 100%);
+                        color: white;
+                    }
+
+                    .tabla-verdad th {
+                        padding: 12px;
+                        text-align: center;
+                        font-weight: 600;
+                        border-right: 1px solid rgba(255, 255, 255, 0.2);
+                    }
+
+                    .tabla-verdad th:last-child {
+                        border-right: none;
+                    }
+
+                    .tabla-verdad td {
+                        padding: 12px;
+                        text-align: center;
+                        border-bottom: 1px solid #e0e0e0;
+                        border-right: 1px solid #e0e0e0;
+                        font-weight: 600;
+                    }
+
+                    .tabla-verdad tr:last-child td {
+                        border-bottom: none;
+                    }
+
+                    .tabla-verdad td:last-child {
+                        border-right: none;
+                    }
+
+                    .tabla-verdad tbody tr:hover {
+                        background: #fff9f0;
+                    }
+
+                    .valor-1 {
+                        background: #d4edda;
+                        color: #155724;
+                        border-radius: 4px;
+                        padding: 4px 8px;
+                    }
+
+                    .valor-0 {
+                        background: #f8d7da;
+                        color: #721c24;
+                        border-radius: 4px;
+                        padding: 4px 8px;
+                    }
+                </style>
+
+                <div class="tabla-verdad-grid">
+                    <!-- TABLA NOT -->
+                    <div class="tabla-card">
+                        <h3>🚫 Tabla de Verdad - NOT</h3>
+                        <p style="font-size: 0.9em; color: #666; margin-bottom: 15px; text-align: center;">
+                            Invierte el valor: Si hay huevos → No lista para poner
+                        </p>
+                        <table class="tabla-verdad">
+                            <thead>
+                                <tr>
+                                    <th>Entrada (A)</th>
+                                    <th>Salida NOT(A)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><span class="valor-0">0</span></td>
+                                    <td><span class="valor-1">1</span></td>
+                                </tr>
+                                <tr>
+                                    <td><span class="valor-1">1</span></td>
+                                    <td><span class="valor-0">0</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <p style="font-size: 0.85em; color: #666; margin-top: 15px; text-align: center;">
+                            <strong>Aplicación:</strong> Si gallina NO tiene huevos (0) → Lista para poner (1)
+                        </p>
+                    </div>
+
+                    <!-- TABLA AND -->
+                    <div class="tabla-card">
+                        <h3>✓ Tabla de Verdad - AND</h3>
+                        <p style="font-size: 0.9em; color: #666; margin-bottom: 15px; text-align: center;">
+                            Ambas condiciones deben ser verdaderas
+                        </p>
+                        <table class="tabla-verdad">
+                            <thead>
+                                <tr>
+                                    <th>A (Huevos)</th>
+                                    <th>B (Activa)</th>
+                                    <th>A AND B</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><span class="valor-0">0</span></td>
+                                    <td><span class="valor-0">0</span></td>
+                                    <td><span class="valor-0">0</span></td>
+                                </tr>
+                                <tr>
+                                    <td><span class="valor-0">0</span></td>
+                                    <td><span class="valor-1">1</span></td>
+                                    <td><span class="valor-0">0</span></td>
+                                </tr>
+                                <tr>
+                                    <td><span class="valor-1">1</span></td>
+                                    <td><span class="valor-0">0</span></td>
+                                    <td><span class="valor-0">0</span></td>
+                                </tr>
+                                <tr>
+                                    <td><span class="valor-1">1</span></td>
+                                    <td><span class="valor-1">1</span></td>
+                                    <td><span class="valor-1">1</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <p style="font-size: 0.85em; color: #666; margin-top: 15px; text-align: center;">
+                            <strong>Aplicación:</strong> Recoger solo si tiene huevos Y está activa
+                        </p>
+                    </div>
+
+                    <!-- TABLA OR -->
+                    <div class="tabla-card">
+                        <h3>⚡ Tabla de Verdad - OR</h3>
+                        <p style="font-size: 0.9em; color: #666; margin-bottom: 15px; text-align: center;">
+                            Al menos una condición debe ser verdadera
+                        </p>
+                        <table class="tabla-verdad">
+                            <thead>
+                                <tr>
+                                    <th>A (Gall. 1)</th>
+                                    <th>B (Gall. 2)</th>
+                                    <th>A OR B</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><span class="valor-0">0</span></td>
+                                    <td><span class="valor-0">0</span></td>
+                                    <td><span class="valor-0">0</span></td>
+                                </tr>
+                                <tr>
+                                    <td><span class="valor-0">0</span></td>
+                                    <td><span class="valor-1">1</span></td>
+                                    <td><span class="valor-1">1</span></td>
+                                </tr>
+                                <tr>
+                                    <td><span class="valor-1">1</span></td>
+                                    <td><span class="valor-0">0</span></td>
+                                    <td><span class="valor-1">1</span></td>
+                                </tr>
+                                <tr>
+                                    <td><span class="valor-1">1</span></td>
+                                    <td><span class="valor-1">1</span></td>
+                                    <td><span class="valor-1">1</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <p style="font-size: 0.85em; color: #666; margin-top: 15px; text-align: center;">
+                            <strong>Aplicación:</strong> Alerta si gallina 1 O gallina 2 tienen huevos
+                        </p>
+                    </div>
+
+                    <!-- TABLA COMBINADA -->
+                    <div class="tabla-card">
+                        <h3>🎯 Tabla Combinada - AND + NOT</h3>
+                        <p style="font-size: 0.9em; color: #666; margin-bottom: 15px; text-align: center;">
+                            Fórmula: (A AND B) AND NOT(C)
+                        </p>
+                        <table class="tabla-verdad">
+                            <thead>
+                                <tr>
+                                    <th>A</th>
+                                    <th>B</th>
+                                    <th>C</th>
+                                    <th>A AND B</th>
+                                    <th>NOT C</th>
+                                    <th>Resultado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><span class="valor-0">0</span></td>
+                                    <td><span class="valor-0">0</span></td>
+                                    <td><span class="valor-0">0</span></td>
+                                    <td><span class="valor-0">0</span></td>
+                                    <td><span class="valor-1">1</span></td>
+                                    <td><span class="valor-0">0</span></td>
+                                </tr>
+                                <tr>
+                                    <td><span class="valor-0">0</span></td>
+                                    <td><span class="valor-0">0</span></td>
+                                    <td><span class="valor-1">1</span></td>
+                                    <td><span class="valor-0">0</span></td>
+                                    <td><span class="valor-0">0</span></td>
+                                    <td><span class="valor-0">0</span></td>
+                                </tr>
+                                <tr>
+                                    <td><span class="valor-0">0</span></td>
+                                    <td><span class="valor-1">1</span></td>
+                                    <td><span class="valor-0">0</span></td>
+                                    <td><span class="valor-0">0</span></td>
+                                    <td><span class="valor-1">1</span></td>
+                                    <td><span class="valor-0">0</span></td>
+                                </tr>
+                                <tr>
+                                    <td><span class="valor-0">0</span></td>
+                                    <td><span class="valor-1">1</span></td>
+                                    <td><span class="valor-1">1</span></td>
+                                    <td><span class="valor-0">0</span></td>
+                                    <td><span class="valor-0">0</span></td>
+                                    <td><span class="valor-0">0</span></td>
+                                </tr>
+                                <tr>
+                                    <td><span class="valor-1">1</span></td>
+                                    <td><span class="valor-0">0</span></td>
+                                    <td><span class="valor-0">0</span></td>
+                                    <td><span class="valor-0">0</span></td>
+                                    <td><span class="valor-1">1</span></td>
+                                    <td><span class="valor-0">0</span></td>
+                                </tr>
+                                <tr>
+                                    <td><span class="valor-1">1</span></td>
+                                    <td><span class="valor-0">0</span></td>
+                                    <td><span class="valor-1">1</span></td>
+                                    <td><span class="valor-0">0</span></td>
+                                    <td><span class="valor-0">0</span></td>
+                                    <td><span class="valor-0">0</span></td>
+                                </tr>
+                                <tr>
+                                    <td><span class="valor-1">1</span></td>
+                                    <td><span class="valor-1">1</span></td>
+                                    <td><span class="valor-0">0</span></td>
+                                    <td><span class="valor-1">1</span></td>
+                                    <td><span class="valor-1">1</span></td>
+                                    <td><span class="valor-1">1</span></td>
+                                </tr>
+                                <tr>
+                                    <td><span class="valor-1">1</span></td>
+                                    <td><span class="valor-1">1</span></td>
+                                    <td><span class="valor-1">1</span></td>
+                                    <td><span class="valor-1">1</span></td>
+                                    <td><span class="valor-0">0</span></td>
+                                    <td><span class="valor-0">0</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <p style="font-size: 0.85em; color: #666; margin-top: 15px; text-align: center;">
+                            <strong>Aplicación:</strong> Recoger si (tiene huevos Y está activa) Y NO está descansando
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- HISTORIAL -->
+            <div class="section">
+                <h2 class="section-title">📜 Historial de Eventos</h2>
+                <div class="historial">
+                    <h3>📋 Registro de Actividades</h3>
+                    <div id="historialEventos" style="max-height: 400px; overflow-y: auto;">
+                        <div class="evento evento-puesta">
+                            <strong>Sistema inicializado</strong>
+                            <div class="evento-tiempo">Ahora</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>🐾 Simulador de Gallinero | Sistema de Monitoreo Inteligente | 2026</p>
+            <p style="font-size: 0.9em; margin-top: 10px;">Basado en Compuertas Lógicas - Productividad Agrícola</p>
+        </footer>
+    </div>
+
+    <script>
+        // CONFIGURACIÓN DE GALLINAS
+        const gallinas = [
+            { id: 1, nombre: 'Clotilde', huevos: 0, velocidadPuesta: 3, activa: true, emoji: '🐔' },
+            { id: 2, nombre: 'Hortensia', huevos: 0, velocidadPuesta: 2.5, activa: true, emoji: '🐓' },
+            { id: 3, nombre: 'Petronela', huevos: 0, velocidadPuesta: 2.8, activa: true, emoji: '🐔' },
+            { id: 4, nombre: 'Beatriz', huevos: 0, velocidadPuesta: 3.2, activa: true, emoji: '🐓' }
+        ];
+
+        // VARIABLES DE AMBIENTE
+        let temperatura = 20; // °C (óptimo 18-24)
+        let limpieza = 100; // % (0-100)
+        let totalRecolecciones = 0;
+        let historialEventos = [];
+        let intervaloSimulacion = null;
+
+        // COMPUERTAS LÓGICAS
+        function AND(a, b) {
+            return (a === 1 && b === 1) ? 1 : 0;
+        }
+
+        function OR(a, b) {
+            return (a === 1 || b === 1) ? 1 : 0;
+        }
+
+        function NOT(a) {
+            return a === 1 ? 0 : 1;
+        }
+
+        function NAND(a, b) {
+            return NOT(AND(a, b));
+        }
+
+        // FUNCIONES DE AMBIENTE
+        function cambiarTemperatura(cambio) {
+            temperatura = Math.max(5, Math.min(35, temperatura + cambio));
+            if (cambio > 0) {
+                agregarEvento(`🔥 Temperatura aumentada a ${temperatura}°C`, 'puesta');
+            } else {
+                agregarEvento(`❄️ Temperatura disminuida a ${temperatura}°C`, 'puesta');
+            }
+            actualizarInterface();
+        }
+
+        function limpiarGallinero() {
+            if (limpieza < 100) {
+                limpieza = 100;
+                agregarEvento('🧼 Gallinero completamente limpio', 'puesta');
+                mostrarNotificacion('¡Gallinero limpio y reluciente!');
+            } else {
+                mostrarAlerta('✓ El gallinero ya está limpio', 'exito');
+            }
+            actualizarInterface();
+        }
+
+        function suciarse() {
+            limpieza = Math.max(0, limpieza - 15);
+            agregarEvento('💩 Nivel de suciedad aumentado', 'puesta');
+            actualizarInterface();
+        }
+
+        // CALCULAR FACTOR DE TEMPERATURA
+        function calcularFactorTemperatura() {
+            // Óptimo: 18-24°C = 100%
+            // Fuera del rango pierde eficiencia
+            if (temperatura >= 18 && temperatura <= 24) {
+                return 100;
+            } else if (temperatura >= 15 && temperatura < 18) {
+                return 75 - (18 - temperatura) * 10; // 75% a 50%
+            } else if (temperatura > 24 && temperatura <= 28) {
+                return 100 - (temperatura - 24) * 10; // 100% a 60%
+            } else if (temperatura < 15) {
+                return Math.max(10, 50 - (15 - temperatura) * 5);
+            } else {
+                return Math.max(5, 60 - (temperatura - 28) * 5);
+            }
+        }
+
+        // CALCULAR FACTOR DE LIMPIEZA
+        function calcularFactorLimpieza() {
+            // 100% limpieza = 100% producción
+            // Menos limpieza = menos producción
+            if (limpieza >= 80) {
+                return 100;
+            } else if (limpieza >= 60) {
+                return 80;
+            } else if (limpieza >= 40) {
+                return 60;
+            } else if (limpieza >= 20) {
+                return 40;
+            } else {
+                return 20;
+            }
+        }
+
+        // CALCULAR PRODUCCIÓN FINAL
+        function calcularProduccionFinal() {
+            const factorTemp = calcularFactorTemperatura();
+            const factorLimp = calcularFactorLimpieza();
+            return Math.round((factorTemp * factorLimp) / 100);
+        }
+
+
+
+        // AGREGAR EVENTO AL HISTORIAL
+        function agregarEvento(texto, tipo) {
+            const hora = new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            const evento = { texto, tipo, hora };
+            historialEventos.unshift(evento);
+
+            const historialDiv = document.getElementById('historialEventos');
+            const eventoDiv = document.createElement('div');
+            eventoDiv.className = `evento evento-${tipo}`;
+            eventoDiv.innerHTML = `
+                <strong>${texto}</strong>
+                <div class="evento-tiempo">${hora}</div>
+            `;
+            historialDiv.insertBefore(eventoDiv, historialDiv.firstChild);
+
+            if (historialEventos.length > 30) {
+                historialEventos.pop();
+                historialDiv.removeChild(historialDiv.lastChild);
+            }
+        }
+
+        // MOSTRAR ALERTAS
+        function mostrarAlerta(mensaje, tipo) {
+            const alertasDiv = document.getElementById('alertasContainer');
+            const icono = tipo === 'critica' ? '🚨' : tipo === 'advertencia' ? '⚠️' : '✅';
+            const alerta = document.createElement('div');
+            alerta.className = `alerta alerta-${tipo}`;
+            alerta.innerHTML = `
+                <span class="alerta-icono">${icono}</span>
+                <span class="alerta-texto">${mensaje}</span>
+            `;
+            alertasDiv.appendChild(alerta);
+
+            setTimeout(() => {
+                if (alerta.parentElement) {
+                    alerta.remove();
+                }
+            }, 5000);
+        }
+
+        // MOSTRAR NOTIFICACIÓN FLOTANTE
+        function mostrarNotificacion(mensaje) {
+            const notif = document.createElement('div');
+            notif.className = 'notificacion';
+            notif.textContent = mensaje;
+            document.body.appendChild(notif);
+            setTimeout(() => notif.remove(), 5000);
+        }
+
+        // RECOGER HUEVOS DE UNA GALLINA
+        function recogerHuevos(id) {
+            const gallina = gallinas.find(g => g.id === id);
+            if (gallina && gallina.huevos > 0) {
+                const cantidad = gallina.huevos;
+                gallina.huevos = 0;
+                totalRecolecciones++;
+                
+                agregarEvento(`✅ Recogidos ${cantidad} huevo(s) de ${gallina.nombre}`, 'recoleccion');
+                mostrarNotificacion(`✓ ${cantidad} huevo(s) recolectados`);
+                actualizarInterface();
+            }
+        }
+
+        // RECOGER TODOS LOS HUEVOS
+        function recogerTodosLosHuevos() {
+            let totalRecogido = 0;
+            gallinas.forEach(gallina => {
+                totalRecogido += gallina.huevos;
+                gallina.huevos = 0;
+            });
+
+            if (totalRecogido > 0) {
+                totalRecolecciones++;
+                
+                agregarEvento(`🥚 Recolección general: ${totalRecogido} huevo(s) recogidos`, 'recoleccion');
+                mostrarAlerta(`✅ Se recogieron ${totalRecogido} huevos del gallinero`, 'exito');
+                mostrarNotificacion(`¡${totalRecogido} huevos recolectados!`);
+                actualizarInterface();
+            } else {
+                mostrarAlerta('⚠️ No hay huevos para recoger en el gallinero', 'advertencia');
+            }
+        }
+
+        // ALIMENTAR GALLINA
+        function alimentarGallina(id) {
+            const gallina = gallinas.find(g => g.id === id);
+            if (gallina) {
+                gallina.velocidadPuesta += 0.3;
+                agregarEvento(`🌾 ${gallina.nombre} ha sido alimentada`, 'alimentacion');
+                mostrarNotificacion(`¡${gallina.nombre} está más productiva!`);
+                actualizarInterface();
+            }
+        }
+
+        // SIMULAR PRODUCCIÓN AUTOMÁTICA
+        function iniciarSimulacionAutomatica() {
+            if (simularEnCurso) return;
+
+            simularEnCurso = true;
+            let ciclo = 0;
+            const maxCiclos = 20;
+            const factorProduccion = calcularProduccionFinal() / 100;
+
+            const intervalo = setInterval(() => {
+                ciclo++;
+                
+                // La suciedad aumenta con el tiempo
+                limpieza = Math.max(0, limpieza - 2);
+
+                gallinas.forEach(gallina => {
+                    // Probabilidad de puesta afectada por ambiente
+                    const probabilidad = (gallina.velocidadPuesta / 10) * factorProduccion;
+                    if (gallina.activa && Math.random() > (1 - probabilidad)) {
+                        gallina.huevos++;
+                        if (gallina.huevos === 1) {
+                            agregarEvento(`🥚 ${gallina.nombre} ha puesto un huevo`, 'puesta');
+                        }
+                    }
+                });
+
+                actualizarInterface();
+
+                if (ciclo >= maxCiclos) {
+                    clearInterval(intervalo);
+                    simularEnCurso = false;
+                    mostrarAlerta('✅ Simulación completada', 'exito');
+                }
+            }, 300);
+        }
+
+        // RESETEAR GALLINERO
+        function resetearGallinero() {
+            if (confirm('¿Resetear todo el gallinero?')) {
+                gallinas.forEach(g => g.huevos = 0);
+                totalRecolecciones = 0;
+                temperatura = 20;
+                limpieza = 100;
+                
+                historialEventos = [];
+                document.getElementById('historialEventos').innerHTML = '<div class="evento evento-puesta"><strong>Sistema reiniciado</strong><div class="evento-tiempo">Ahora</div></div>';
+                agregarEvento('🔄 Sistema reiniciado', 'puesta');
+                mostrarAlerta('✅ Gallinero reiniciado', 'exito');
+                actualizarInterface();
+            }
+        }
+
+        // ACTUALIZAR INTERFACE
+        function actualizarInterface() {
+            // ACTUALIZAR AMBIENTE
+            actualizarAmbiente();
+            
+            // Actualizar juego
+            document.getElementById('ciclosJuego').textContent = ciclosJuego;
+            document.getElementById('puntajeJuego').textContent = puntaje;
+            document.getElementById('huevosRecolectados').textContent = totalRecolecciones;
+
+            // Actualizar estadísticas
+            const totalHuevos = gallinas.reduce((sum, g) => sum + g.huevos, 0);
+            const gallinasListas = gallinas.filter(g => g.huevos > 0).length;
+            const gallinasProduciendo = gallinas.filter(g => g.activa).length;
+
+            document.getElementById('totalHuevos').textContent = totalHuevos;
+            document.getElementById('totalGallinas').textContent = gallinas.length;
+            document.getElementById('gallinasListas').textContent = gallinasListas;
+            document.getElementById('gallinasProduciendo').textContent = gallinasProduciendo;
+            document.getElementById('totalRecolecciones').textContent = totalRecolecciones;
+
+            const promedio = Math.round((totalHuevos / (gallinas.length * 5)) * 100);
+            document.getElementById('promedio').textContent = promedio + '%';
+
+            // Actualizar gallinas
+            const container = document.getElementById('gallinasContainer');
+            container.innerHTML = '';
+
+            gallinas.forEach(gallina => {
+                const gallinaDiv = document.createElement('div');
+                gallinaDiv.className = `gallina-card ${gallina.huevos > 0 ? 'alerta' : ''}`;
+
+                const estado = gallina.huevos > 0 ? 'lista' : gallina.activa ? 'produciendo' : 'descansando';
+                const estadoTexto = gallina.huevos > 0 ? 'LISTA PARA RECOGER' : gallina.activa ? 'Produciendo' : 'Descansando';
+                const estadoColor = gallina.huevos > 0 ? 'estado-lista' : gallina.activa ? 'estado-produciendo' : 'estado-descansando';
+
+                gallinaDiv.innerHTML = `
+                    <div class="gallina-nombre">
+                        <span class="gallina-emojis">${gallina.emoji}</span>
+                        <span>${gallina.nombre}</span>
+                    </div>
+
+                    <div class="gallina-info">
+                        <div class="info-item">
+                            <span class="info-label">ID:</span>
+                            <span class="info-valor">#${gallina.id}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Velocidad:</span>
+                            <span class="info-valor">${gallina.velocidadPuesta.toFixed(1)}</span>
+                        </div>
+                    </div>
+
+                    <div class="huevos-contador">
+                        <div class="huevos-numero">${gallina.huevos}</div>
+                        <div class="huevos-texto">🥚 Huevos Listos</div>
+                    </div>
+
+                    <div class="barra-produccion">
+                        <div class="barra-produccion-relleno" style="width: ${Math.min(100, (gallina.huevos / 5) * 100)}%;">
+                            ${Math.round((gallina.huevos / 5) * 100)}%
+                        </div>
+                    </div>
+
+                    <span class="estado-badge ${estadoColor}">${estadoTexto}</span>
+
+                    <div class="botones-gallina" style="margin-top: 15px;">
+                        <button class="btn-pequeño btn-recoger" onclick="recogerHuevos(${gallina.id})" ${gallina.huevos === 0 ? 'disabled' : ''}>
+                            🥚 Recoger
+                        </button>
+                        <button class="btn-pequeño btn-alimentar" onclick="alimentarGallina(${gallina.id})">
+                            🌾 Alimentar
+                        </button>
+                    </div>
+                `;
+
+                container.appendChild(gallinaDiv);
+            });
+
+            // Actualizar compuertas lógicas
+            actualizarLogicaCompuertas();
+
+            // Generar alertas
+            if (totalHuevos > 0 && totalHuevos >= gallinas.length * 3 && !juegoEnCurso) {
+                mostrarAlerta(`⏰ ¡Hay ${totalHuevos} huevos listos para recoger!`, 'advertencia');
+            }
+        }
+
+        // ACTUALIZAR AMBIENTE
+        function actualizarAmbiente() {
+            // Temperatura
+            document.getElementById('tempNumero').textContent = temperatura + '°C';
+            const tempRelleno = ((temperatura - 5) / 30) * 100; // Escala de 5 a 35
+            document.getElementById('tempRelleno').style.width = tempRelleno + '%';
+
+            let tempEstadoTexto = '';
+            let tempEstadoClase = '';
+            if (temperatura >= 18 && temperatura <= 24) {
+                tempEstadoTexto = '✓ Óptima';
+                tempEstadoClase = '';
+            } else if (temperatura >= 15 && temperatura < 18) {
+                tempEstadoTexto = '⚠️ Fría';
+                tempEstadoClase = 'alerta';
+            } else if (temperatura > 24 && temperatura <= 28) {
+                tempEstadoTexto = '⚠️ Cálida';
+                tempEstadoClase = 'alerta';
+            } else {
+                tempEstadoTexto = '🚨 Peligrosa';
+                tempEstadoClase = 'critica';
+            }
+            const tempEstado = document.getElementById('tempEstado');
+            tempEstado.textContent = tempEstadoTexto;
+            tempEstado.className = 'temperatura-estado ' + tempEstadoClase;
+
+            // Limpieza
+            document.getElementById('limpiezaNumero').textContent = Math.round(limpieza) + '%';
+            document.getElementById('limpiezaRelleno').style.width = limpieza + '%';
+
+            let limpiezaEstadoTexto = '';
+            let limpiezaEstadoClase = '';
+            let limpiezaBarraClase = '';
+            if (limpieza >= 80) {
+                limpiezaEstadoTexto = '✓ Limpio';
+                limpiezaEstadoClase = '';
+                limpiezaBarraClase = '';
+            } else if (limpieza >= 60) {
+                limpiezaEstadoTexto = '⚠️ Moderadamente Sucio';
+                limpiezaEstadoClase = 'alerta';
+                limpiezaBarraClase = 'alerta';
+            } else if (limpieza >= 40) {
+                limpiezaEstadoTexto = '⚠️ Muy Sucio';
+                limpiezaEstadoClase = 'alerta';
+                limpiezaBarraClase = 'critica';
+            } else {
+                limpiezaEstadoTexto = '🚨 Extremadamente Sucio';
+                limpiezaEstadoClase = 'critica';
+                limpiezaBarraClase = 'critica';
+            }
+            const limpiezaEstado = document.getElementById('limpiezaEstado');
+            limpiezaEstado.textContent = limpiezaEstadoTexto;
+            limpiezaEstado.className = 'limpieza-estado ' + limpiezaEstadoClase;
+
+            const limpiezaRelleno = document.getElementById('limpiezaRelleno');
+            limpiezaRelleno.className = 'limpieza-relleno ' + limpiezaBarraClase;
+
+            // Factores de producción
+            const factorTemp = calcularFactorTemperatura();
+            const factorLimp = calcularFactorLimpieza();
+            const produccionFinal = calcularProduccionFinal();
+
+            document.getElementById('factorTemperatura').textContent = Math.round(factorTemp);
+            document.getElementById('factorLimpieza').textContent = Math.round(factorLimp);
+            document.getElementById('produccionFinal').textContent = produccionFinal;
+        }
+
+        // ACTUALIZAR LÓGICA DE COMPUERTAS
+        function actualizarLogicaCompuertas() {
+            const gallinasConHuevos = gallinas.filter(g => g.huevos > 0);
+            const primeraConHuevos = gallinasConHuevos.length > 0 ? 1 : 0;
+            const segundaConHuevos = gallinasConHuevos.length > 1 ? 1 : 0;
+            const algunaConHuevos = gallinasConHuevos.length > 0 ? 1 : 0;
+
+            // NOT
+            document.getElementById('logicaNOT').textContent = primeraConHuevos;
+            document.getElementById('logicaNOTResult').textContent = NOT(primeraConHuevos);
+
+            // AND
+            const esActiva = gallinas[0].activa ? 1 : 0;
+            const resultadoAND = AND(primeraConHuevos, esActiva);
+            document.getElementById('logicaConHuevos').textContent = primeraConHuevos;
+            document.getElementById('logicaActiva').textContent = esActiva;
+            document.getElementById('logicaANDResult').textContent = resultadoAND;
+
+            // OR
+            const resultadoOR = OR(primeraConHuevos, segundaConHuevos);
+            document.getElementById('logicaG1').textContent = primeraConHuevos;
+            document.getElementById('logicaG2').textContent = segundaConHuevos;
+            document.getElementById('logicaORResult').textContent = resultadoOR;
+        }
+
+        // INICIALIZAR - Empezar simulación automáticamente
+        function inicializarSimulador() {
+            // Empezar producción de huevos automáticamente
+            if (intervaloSimulacion) clearInterval(intervaloSimulacion);
+            
+            intervaloSimulacion = setInterval(() => {
+                // La temperatura baja naturalmente
+                temperatura = Math.max(5, temperatura - 0.5);
+                
+                // La limpieza se reduce por la actividad de las gallinas
+                limpieza = Math.max(0, limpieza - 8);
+                
+                // Producción de huevos con factores
+                const factorProduccion = calcularProduccionFinal() / 100;
+                gallinas.forEach(gallina => {
+                    if (gallina.activa) {
+                        const probabilidad = (gallina.velocidadPuesta / 10) * factorProduccion;
+                        if (Math.random() > (1 - probabilidad)) {
+                            gallina.huevos++;
+                        }
+                    }
+                });
+                
+                actualizarInterface();
+                
+                // Alerta si condiciones son malas
+                if (temperatura < 10 || temperatura > 32) {
+                    mostrarAlerta('🚨 ¡TEMPERATURA CRÍTICA! Ajusta rápido', 'critica');
+                }
+                if (limpieza < 10) {
+                    mostrarAlerta('🚨 ¡GALLINERO SUCIO! Limpia ahora mismo', 'critica');
+                }
+            }, 1000); // Un ciclo cada segundo
+        }
+
+        // INICIALIZAR
+        document.addEventListener('DOMContentLoaded', function() {
+            agregarEvento('✅ Sistema del gallinero iniciado', 'puesta');
+            actualizarInterface();
+            inicializarSimulador();
+        });
+    </script>
+</body>
+</html>

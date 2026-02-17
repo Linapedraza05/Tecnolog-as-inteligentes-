@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detector de Comida para Mascotas</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        header p {
+            font-size: 1.1em;
+            opacity: 0.95;
+        }
+
+        .content {
+            padding: 40px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+        }
+
+        /* PANEL DEL COMEDERO */
+        .comedero-panel {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .comedero-titulo {
+            color: #667eea;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .comedero-visual {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .comedero-contenedor {
+            position: relative;
+            width: 200px;
+            height: 250px;
+            margin: 0 auto;
+            border: 3px solid #333;
+            border-radius: 0 0 20px 20px;
+            background: #f9f9f9;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .comedero-comida {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            background: linear-gradient(135deg, #ff9a56 0%, #ff6b6b 100%);
+            transition: height 0.5s ease;
+            border-top: 2px solid #ff6b6b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5em;
+        }
+
+        .comedero-comida.vacio {
+            background: linear-gradient(135deg, #e0e0e0 0%, #bdbdbd 100%);
+        }
+
+        .nivel-numero {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #667eea;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .barra-nivel {
+            background: #e0e0e0;
+            border-radius: 10px;
+            height: 40px;
+            overflow: hidden;
+            margin: 20px 0;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .barra-nivel-relleno {
+            height: 100%;
+            background: linear-gradient(90deg, #27ae60 0%, #2ecc71 100%);
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .barra-nivel-relleno.bajo {
+            background: linear-gradient(90deg, #e74c3c 0%, #e67e22 100%);
+        }
+
+        .barra-nivel-relleno.critico {
+            background: linear-gradient(90deg, #c0392b 0%, #e74c3c 100%);
+            animation: parpadeo 0.5s infinite;
+        }
+
+        @keyframes parpadeo {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* ALERTAS */
+        .alerta {
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            animation: deslizar 0.4s ease;
+        }
+
+        @keyframes deslizar {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .alerta-exito {
+            background: #d4edda;
+            border-left: 5px solid #27ae60;
+            color: #155724;
+        }
+
+        .alerta-advertencia {
+            background: #fff3cd;
+            border-left: 5px solid #f39c12;
+            color: #856404;
+        }
+
+        .alerta-critica {
+            background: #f8d7da;
+            border-left: 5px solid #e74c3c;
+            color: #721c24;
+            animation: parpadeo-alerta 0.6s infinite;
+        }
+
+        @keyframes parpadeo-alerta {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
+        .alerta-icono {
+            font-size: 1.5em;
+        }
+
+        .alerta-texto {
+            flex: 1;
+        }
+
+        .alerta-cerrar {
+            cursor: pointer;
+            font-size: 1.2em;
+            opacity: 0.7;
+            transition: opacity 0.3s;
+        }
+
+        .alerta-cerrar:hover {
+            opacity: 1;
+        }
+
+        /* BOTONES */
+        .botones {
+            display: grid;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        button {
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-rellenar {
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            color: white;
+        }
+
+        .btn-rellenar:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(39, 174, 96, 0.4);
+        }
+
+        .btn-simular {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+        }
+
+        .btn-simular:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(52, 152, 219, 0.4);
+        }
+
+        .btn-consumir {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+        }
+
+        .btn-consumir:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(231, 76, 60, 0.4);
+        }
+
+        .btn-limpiar {
+            background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
+            color: white;
+        }
+
+        .btn-limpiar:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(149, 165, 166, 0.4);
+        }
+
+        /* PANEL DE CONTROL */
+        .control-panel {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .control-titulo {
+            color: #667eea;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .control-item {
+            background: white;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        .control-item label {
+            display: block;
+            color: #667eea;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .control-item input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        .control-item input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        /* ESTADÍSTICAS */
+        .stats {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        .stats h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .stat-item:last-child {
+            border-bottom: none;
+        }
+
+        .stat-label {
+            color: #555;
+            font-weight: 600;
+        }
+
+        .stat-valor {
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        /* HISTORIAL */
+        .historial {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        .historial h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .evento {
+            padding: 10px;
+            margin-bottom: 10px;
+            border-left: 4px solid #667eea;
+            background: #f9fafb;
+            border-radius: 4px;
+            font-size: 0.95em;
+        }
+
+        .evento-tiempo {
+            color: #999;
+            font-size: 0.85em;
+        }
+
+        .evento-relleno {
+            border-left-color: #27ae60;
+            background: #f0fdf4;
+        }
+
+        .evento-consumo {
+            border-left-color: #e74c3c;
+            background: #fef2f2;
+        }
+
+        .evento-vacio {
+            border-left-color: #e67e22;
+            background: #fffaf0;
+        }
+
+        /* COMPUERTAS LÓGICAS */
+        .logica-panel {
+            grid-column: 1 / -1;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .logica-titulo {
+            color: #667eea;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .logica-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .logica-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .logica-card h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .logica-resultado {
+            display: flex;
+            justify-content: space-around;
+            padding: 15px;
+            background: #f9fafb;
+            border-radius: 5px;
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        .logica-valor {
+            flex: 1;
+        }
+
+        .logica-valor-numero {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .logica-valor-texto {
+            font-size: 0.85em;
+            color: #999;
+            margin-top: 5px;
+        }
+
+        footer {
+            background: #f5f5f5;
+            padding: 20px;
+            text-align: center;
+            color: #666;
+            border-top: 1px solid #e0e0e0;
+            grid-column: 1 / -1;
+        }
+
+        @media (max-width: 1024px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+
+            header h1 {
+                font-size: 2em;
+            }
+
+            .logica-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .notificacion {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            animation: notificacion-entrada 0.4s ease, notificacion-salida 0.4s ease 4.6s;
+            z-index: 1000;
+        }
+
+        @keyframes notificacion-entrada {
+            from {
+                opacity: 0;
+                transform: translateX(100px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes notificacion-salida {
+            from {
+                opacity: 1;
+                transform: translateX(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateX(100px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🍽️ Detector de Comida para Mascotas</h1>
+            <p>Sistema de Monitoreo Inteligente del Comedero</p>
+        </header>
+
+        <div class="content">
+            <!-- PANEL DEL COMEDERO -->
+            <div class="comedero-panel">
+                <div class="comedero-titulo">📦 Comedero</div>
+                
+                <div class="comedero-visual">
+                    <div class="comedero-contenedor">
+                        <div class="comedero-comida" id="comederoComida" style="height: 100%;">
+                            <span id="comederoIcono">🌾</span>
+                        </div>
+                    </div>
+                    
+                    <div class="nivel-numero" id="nivelNumero">100%</div>
+                    
+                    <div class="barra-nivel">
+                        <div class="barra-nivel-relleno" id="barraRelleno" style="width: 100%;">100%</div>
+                    </div>
+                </div>
+
+                <div id="alertas"></div>
+
+                <div class="botones">
+                    <button class="btn-rellenar" onclick="rellenarComedia()">
+                        ✅ Rellenar Comedero
+                    </button>
+                    <button class="btn-consumir" onclick="consumirComida()">
+                        🐕 Mascota come (5% consumido)
+                    </button>
+                    <button class="btn-simular" onclick="simularConsumo()">
+                        ⚡ Consumo Automático
+                    </button>
+                    <button class="btn-limpiar" onclick="limpiarHistorial()">
+                        🗑️ Limpiar Historial
+                    </button>
+                </div>
+            </div>
+
+            <!-- PANEL DE CONTROL -->
+            <div class="control-panel">
+                <div class="control-titulo">⚙️ Control del Sistema</div>
+
+                <!-- ESTADÍSTICAS -->
+                <div class="stats">
+                    <h3>📊 Estadísticas</h3>
+                    <div class="stat-item">
+                        <span class="stat-label">Nivel Actual:</span>
+                        <span class="stat-valor" id="statsNivel">100%</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Última Recarga:</span>
+                        <span class="stat-valor" id="statsRecarga">Nunca</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Recargas Totales:</span>
+                        <span class="stat-valor" id="statsTotal">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Consumo Hoy:</span>
+                        <span class="stat-valor" id="statsConsumo">0%</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Estado:</span>
+                        <span class="stat-valor" id="statsEstado" style="color: #27ae60;">✓ Lleno</span>
+                    </div>
+                </div>
+
+                <!-- CONFIGURACIÓN -->
+                <div class="control-item">
+                    <label for="nivelCritico">⚠️ Nivel Crítico (%):</label>
+                    <input type="number" id="nivelCritico" min="0" max="50" value="20" onchange="actualizarConfiguracion()">
+                    <small style="color: #999;">Alerta cuando está por debajo de este porcentaje</small>
+                </div>
+
+                <div class="control-item">
+                    <label for="nivelBajo">📉 Nivel Bajo (%):</label>
+                    <input type="number" id="nivelBajo" min="0" max="50" value="40" onchange="actualizarConfiguracion()">
+                    <small style="color: #999;">Advertencia cuando está por debajo de este porcentaje</small>
+                </div>
+
+                <!-- HISTORIAL -->
+                <div class="historial">
+                    <h3>📜 Historial de Eventos</h3>
+                    <div id="historialEventos" style="max-height: 400px; overflow-y: auto;">
+                        <div class="evento evento-relleno">
+                            <strong>Sistema iniciado</strong>
+                            <div class="evento-tiempo" id="eventoTiempo1">Ahora</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- COMPUERTAS LÓGICAS -->
+            <div class="logica-panel">
+                <div class="logica-titulo">🔧 Lógica del Sistema de Compuertas</div>
+                <p style="text-align: center; color: #666; margin-bottom: 30px;">
+                    El sistema usa compuertas lógicas para determinar el estado y generar alertas:
+                </p>
+
+                <div class="logica-grid">
+                    <!-- COMPUERTA NOT (Comida vacía) -->
+                    <div class="logica-card">
+                        <h4>🚫 NOT - Detector de Vacío</h4>
+                        <p style="font-size: 0.9em; color: #666;">Si nivel = 0, alerta de vacío</p>
+                        <div class="logica-resultado">
+                            <div class="logica-valor">
+                                <div style="font-size: 0.9em; color: #999;">Nivel > 0</div>
+                                <div class="logica-valor-numero" id="logicaNOT">1</div>
+                            </div>
+                            <div style="font-size: 1.5em; color: #ccc;">→</div>
+                            <div class="logica-valor">
+                                <div style="font-size: 0.9em; color: #999;">Resultado NOT</div>
+                                <div class="logica-valor-numero" id="logicaNOTResult">0</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- COMPUERTA AND (Alerta Bajo) -->
+                    <div class="logica-card">
+                        <h4>✓ AND - Nivel Bajo</h4>
+                        <p style="font-size: 0.9em; color: #666;">Nivel bajo Y no está vacío</p>
+                        <div class="logica-resultado">
+                            <div class="logica-valor">
+                                <div style="font-size: 0.9em; color: #999;">Bajo</div>
+                                <div class="logica-valor-numero" id="logicaBajo">0</div>
+                            </div>
+                            <div style="font-size: 1.5em; color: #ccc;">×</div>
+                            <div class="logica-valor">
+                                <div style="font-size: 0.9em; color: #999;">No Vacío</div>
+                                <div class="logica-valor-numero" id="logicaNoVacio">1</div>
+                            </div>
+                            <div style="font-size: 1.5em; color: #ccc;">→</div>
+                            <div class="logica-valor">
+                                <div style="font-size: 0.9em; color: #999;">Alerta</div>
+                                <div class="logica-valor-numero" id="logicaANDResult">0</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- COMPUERTA OR (Alerta General) -->
+                    <div class="logica-card">
+                        <h4>⚡ OR - Alerta General</h4>
+                        <p style="font-size: 0.9em; color: #666;">Bajo O Crítico</p>
+                        <div class="logica-resultado">
+                            <div class="logica-valor">
+                                <div style="font-size: 0.9em; color: #999;">Nivel Bajo</div>
+                                <div class="logica-valor-numero" id="logicaBajoOR">0</div>
+                            </div>
+                            <div style="font-size: 1.5em; color: #ccc;">+</div>
+                            <div class="logica-valor">
+                                <div style="font-size: 0.9em; color: #999;">Crítico</div>
+                                <div class="logica-valor-numero" id="logicaCriticoOR">0</div>
+                            </div>
+                            <div style="font-size: 1.5em; color: #ccc;">→</div>
+                            <div class="logica-valor">
+                                <div style="font-size: 0.9em; color: #999;">Alerta</div>
+                                <div class="logica-valor-numero" id="logicaORResult">0</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>🐾 Detector Inteligente de Comedero | Sistema de Monitoreo para Mascotas | 2026</p>
+            <p style="font-size: 0.9em; margin-top: 10px;">Basado en Compuertas Lógicas - Seguridad y Comodidad para tu Mascota</p>
+        </footer>
+    </div>
+
+    <script>
+        // CONFIGURACIÓN INICIAL
+        let nivelComida = 100;
+        let nivelCritico = 20;
+        let nivelBajo = 40;
+        let totalRecargas = 0;
+        let ultimaRecarga = new Date();
+        let consumoHoy = 0;
+        let historialEventos = [];
+
+        // FUNCIONES DE COMPUERTAS LÓGICAS
+        function AND(a, b) {
+            return (a === 1 && b === 1) ? 1 : 0;
+        }
+
+        function OR(a, b) {
+            return (a === 1 || b === 1) ? 1 : 0;
+        }
+
+        function NOT(a) {
+            return a === 1 ? 0 : 1;
+        }
+
+        // ACTUALIZAR CONFIGURACIÓN
+        function actualizarConfiguracion() {
+            nivelCritico = parseInt(document.getElementById('nivelCritico').value);
+            nivelBajo = parseInt(document.getElementById('nivelBajo').value);
+            actualizarInterface();
+        }
+
+        // RELLENAR COMEDERO
+        function rellenarComedia() {
+            if (nivelComida < 100) {
+                consumoHoy = 0;
+                nivelComida = 100;
+                totalRecargas++;
+                ultimaRecarga = new Date();
+                agregarEvento('✅ Comedero rellenado al 100%', 'relleno');
+                mostrarNotificacion('¡Comedero rellenado exitosamente!');
+            } else {
+                mostrarAlerta('⚠️ El comedero ya está lleno', 'advertencia');
+            }
+            actualizarInterface();
+        }
+
+        // CONSUMO DE COMIDA POR LA MASCOTA
+        function consumirComida() {
+            if (nivelComida > 0) {
+                nivelComida = Math.max(0, nivelComida - 5);
+                consumoHoy += 5;
+                agregarEvento('🐕 Mascota comió (5% consumido)', 'consumo');
+                actualizarInterface();
+            } else {
+                mostrarAlerta('🚨 ¡Comedero vacío! Tu mascota no tiene comida', 'critica');
+            }
+        }
+
+        // SIMULACIÓN AUTOMÁTICA
+        function simularConsumo() {
+            const intervalo = setInterval(() => {
+                if (nivelComida > 0) {
+                    nivelComida = Math.max(0, nivelComida - 3);
+                    consumoHoy += 3;
+                    actualizarInterface();
+                } else {
+                    clearInterval(intervalo);
+                    mostrarAlerta('🚨 ¡COMEDERO VACÍO! ¡Mascota sin alimento!', 'critica');
+                }
+            }, 500);
+
+            setTimeout(() => clearInterval(intervalo), 5000);
+        }
+
+        // LIMPIAR HISTORIAL
+        function limpiarHistorial() {
+            if (confirm('¿Seguro que deseas limpiar el historial?')) {
+                historialEventos = [];
+                document.getElementById('historialEventos').innerHTML = '';
+                agregarEvento('🗑️ Historial limpiado', 'relleno');
+            }
+        }
+
+        // AGREGAR EVENTO AL HISTORIAL
+        function agregarEvento(texto, tipo) {
+            const hora = new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            const evento = {
+                texto: texto,
+                tipo: tipo,
+                hora: hora
+            };
+            historialEventos.unshift(evento);
+
+            const historialDiv = document.getElementById('historialEventos');
+            const eventoDiv = document.createElement('div');
+            eventoDiv.className = `evento evento-${tipo}`;
+            eventoDiv.innerHTML = `
+                <strong>${texto}</strong>
+                <div class="evento-tiempo">${hora}</div>
+            `;
+            historialDiv.insertBefore(eventoDiv, historialDiv.firstChild);
+
+            // Mantener solo los últimos 20 eventos
+            if (historialEventos.length > 20) {
+                historialEventos.pop();
+                historialDiv.removeChild(historialDiv.lastChild);
+            }
+        }
+
+        // MOSTRAR ALERTAS
+        function mostrarAlerta(mensaje, tipo) {
+            const alertasDiv = document.getElementById('alertas');
+            const icono = tipo === 'critica' ? '🚨' : tipo === 'advertencia' ? '⚠️' : '✅';
+            const alerta = document.createElement('div');
+            alerta.className = `alerta alerta-${tipo}`;
+            alerta.innerHTML = `
+                <span class="alerta-icono">${icono}</span>
+                <span class="alerta-texto">${mensaje}</span>
+                <span class="alerta-cerrar" onclick="this.parentElement.remove()">✕</span>
+            `;
+            alertasDiv.appendChild(alerta);
+
+            // Auto cerrar alertas después de 5 segundos
+            setTimeout(() => {
+                if (alerta.parentElement) {
+                    alerta.remove();
+                }
+            }, 5000);
+        }
+
+        // MOSTRAR NOTIFICACIÓN FLOTANTE
+        function mostrarNotificacion(mensaje) {
+            const notif = document.createElement('div');
+            notif.className = 'notificacion';
+            notif.textContent = mensaje;
+            document.body.appendChild(notif);
+            setTimeout(() => notif.remove(), 5000);
+        }
+
+        // ACTUALIZAR INTERFAZ
+        function actualizarInterface() {
+            // Actualizar visual del comedero
+            const comidaDiv = document.getElementById('comederoComida');
+            comidaDiv.style.height = nivelComida + '%';
+            
+            // Cambiar color según nivel
+            if (nivelComida === 0) {
+                comidaDiv.classList.add('vacio');
+                document.getElementById('comederoIcono').textContent = '❌';
+            } else {
+                comidaDiv.classList.remove('vacio');
+                document.getElementById('comederoIcono').textContent = '🌾';
+            }
+
+            // Actualizar nivel número
+            document.getElementById('nivelNumero').textContent = Math.round(nivelComida) + '%';
+
+            // Actualizar barra
+            const barra = document.getElementById('barraRelleno');
+            barra.style.width = nivelComida + '%';
+            barra.textContent = Math.round(nivelComida) + '%';
+
+            if (nivelComida <= nivelCritico) {
+                barra.classList.add('critico');
+                barra.classList.remove('bajo');
+            } else if (nivelComida <= nivelBajo) {
+                barra.classList.add('bajo');
+                barra.classList.remove('critico');
+            } else {
+                barra.classList.remove('bajo', 'critico');
+            }
+
+            // Actualizar estadísticas
+            document.getElementById('statsNivel').textContent = Math.round(nivelComida) + '%';
+            document.getElementById('statsConsumo').textContent = Math.round(consumoHoy) + '%';
+            document.getElementById('statsTotal').textContent = totalRecargas;
+
+            const ultimoTiempo = ultimaRecarga.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+            document.getElementById('statsRecarga').textContent = ultimoTiempo;
+
+            // Determinar estado
+            let estado = '';
+            let color = '';
+            if (nivelComida === 0) {
+                estado = '🚨 Vacío - Urgente';
+                color = '#e74c3c';
+            } else if (nivelComida <= nivelCritico) {
+                estado = '🚨 Crítico - Rellenar YA';
+                color = '#e74c3c';
+            } else if (nivelComida <= nivelBajo) {
+                estado = '⚠️ Bajo - Próximo a rellenar';
+                color = '#e67e22';
+            } else {
+                estado = '✓ Lleno';
+                color = '#27ae60';
+            }
+
+            const statsEstado = document.getElementById('statsEstado');
+            statsEstado.textContent = estado;
+            statsEstado.style.color = color;
+
+            // LÓGICA DE COMPUERTAS
+            actualizarLogicaCompuertas();
+
+            // Generar alertas si es necesario
+            generarAlertas();
+        }
+
+        // ACTUALIZAR LÓGICA DE COMPUERTAS
+        function actualizarLogicaCompuertas() {
+            // Valores binarios
+            const comidaDisponible = nivelComida > 0 ? 1 : 0;
+            const nivelEsBajo = nivelComida <= nivelBajo && nivelComida > 0 ? 1 : 0;
+            const nivelEsCritico = nivelComida <= nivelCritico ? 1 : 0;
+
+            // NOT - Detector de vacío
+            const resultadoNOT = NOT(comidaDisponible);
+            document.getElementById('logicaNOT').textContent = comidaDisponible;
+            document.getElementById('logicaNOTResult').textContent = resultadoNOT;
+
+            // AND - Nivel bajo
+            const resultadoAND = AND(nivelEsBajo, comidaDisponible);
+            document.getElementById('logicaBajo').textContent = nivelEsBajo;
+            document.getElementById('logicaNoVacio').textContent = comidaDisponible;
+            document.getElementById('logicaANDResult').textContent = resultadoAND;
+
+            // OR - Alerta general
+            const resultadoOR = OR(nivelEsBajo, nivelEsCritico);
+            document.getElementById('logicaBajoOR').textContent = nivelEsBajo;
+            document.getElementById('logicaCriticoOR').textContent = nivelEsCritico;
+            document.getElementById('logicaORResult').textContent = resultadoOR;
+        }
+
+        // GENERAR ALERTAS AUTOMÁTICAS
+        function generarAlertas() {
+            if (nivelComida === 0) {
+                mostrarAlerta('🚨 ¡COMEDERO VACÍO! Tu mascota no tiene comida. ¡Rellenar inmediatamente!', 'critica');
+            } else if (nivelComida <= nivelCritico) {
+                mostrarAlerta(`⚠️ Nivel crítico: ${Math.round(nivelComida)}%. Rellenar próximamente`, 'advertencia');
+            } else if (nivelComida <= nivelBajo) {
+                mostrarAlerta(`📉 Nivel bajo: ${Math.round(nivelComida)}%. Considera rellenar pronto`, 'advertencia');
+            }
+        }
+
+        // INICIALIZAR
+        document.addEventListener('DOMContentLoaded', function() {
+            agregarEvento('✅ Sistema iniciado', 'relleno');
+            actualizarInterface();
+        });
+    </script>
+</body>
+</html>

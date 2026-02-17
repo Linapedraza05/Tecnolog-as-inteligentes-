@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Compuertas Lógicas</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        header p {
+            font-size: 1.1em;
+            opacity: 0.95;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .section {
+            margin-bottom: 50px;
+        }
+
+        .section h2 {
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+            margin-bottom: 30px;
+            font-size: 1.8em;
+        }
+
+        .section h3 {
+            color: #764ba2;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        thead {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        th {
+            padding: 15px;
+            text-align: center;
+            font-weight: 600;
+            border-right: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        th:last-child {
+            border-right: none;
+        }
+
+        td {
+            padding: 15px;
+            text-align: center;
+            border-bottom: 1px solid #e0e0e0;
+            border-right: 1px solid #e0e0e0;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        td:last-child {
+            border-right: none;
+        }
+
+        tbody tr:hover {
+            background: #f5f7ff;
+            transition: background 0.3s ease;
+        }
+
+        tbody tr:nth-child(even) {
+            background: #f9fafb;
+        }
+
+        .resultado-1 {
+            color: #27ae60;
+            font-weight: bold;
+            background: #e8f8f5;
+        }
+
+        .resultado-0 {
+            color: #e74c3c;
+            font-weight: bold;
+            background: #fadbd8;
+        }
+
+        .estado-permitido {
+            color: #27ae60;
+            font-weight: bold;
+        }
+
+        .estado-denegado {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+
+        .escenario {
+            background: #f0f4ff;
+            border-left: 5px solid #667eea;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+
+        .escenario h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .escenario-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 10px;
+        }
+
+        .escenario-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .escenario-label {
+            color: #555;
+            font-weight: 600;
+        }
+
+        .escenario-resultado {
+            font-size: 1.1em;
+            font-weight: bold;
+            padding: 8px 16px;
+            border-radius: 5px;
+            display: inline-block;
+        }
+
+        .resultado-permitido {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .resultado-denegado {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .grid-compuertas {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .compuerta-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .compuerta-card h3 {
+            margin-top: 0;
+        }
+
+        .compuerta-card table {
+            margin-bottom: 0;
+            font-size: 0.95em;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .tab-button {
+            padding: 12px 24px;
+            background: #e0e0e0;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .tab-button.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .tab-button:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .info-box {
+            background: #e3f2fd;
+            border-left: 5px solid #2196f3;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+
+        .info-box strong {
+            color: #1976d2;
+        }
+
+        footer {
+            background: #f5f5f5;
+            padding: 20px;
+            text-align: center;
+            color: #666;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                padding: 20px;
+            }
+
+            header h1 {
+                font-size: 1.8em;
+            }
+
+            .grid-compuertas {
+                grid-template-columns: 1fr;
+            }
+
+            .escenario-content {
+                grid-template-columns: 1fr;
+            }
+
+            table {
+                font-size: 0.9em;
+            }
+
+            th, td {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>⚙️ Sistema de Compuertas Lógicas</h1>
+            <p>Simulador de Control de Acceso a Puerta de Seguridad</p>
+        </header>
+
+        <div class="content">
+            <!-- INFORMACIÓN GENERAL -->
+            <section class="section">
+                <h2>📋 Descripción del Sistema</h2>
+                <div class="info-box">
+                    <strong>Propósito:</strong> Simular un sistema de control de acceso a una puerta de seguridad que requiere validar: autenticación, permisos y que no esté en emergencia.
+                </div>
+                <div class="info-box">
+                    <strong>Fórmula del Circuito:</strong> Salida = (A AND B) AND (NOT C)<br>
+                    <ul style="margin-top: 10px; margin-left: 20px;">
+                        <li>A = Autenticación correcta (1=sí, 0=no)</li>
+                        <li>B = Permisos válidos (1=sí, 0=no)</li>
+                        <li>C = Alarma de emergencia (1=activada, 0=desactivada)</li>
+                    </ul>
+                </div>
+                <p style="margin-top: 15px; color: #333; line-height: 1.6;">
+                    <strong>Resultado:</strong> Acceso permitido solo si está autenticado Y tiene permisos Y NO hay emergencia.
+                </p>
+            </section>
+
+            <!-- COMPUERTAS LÓGICAS INDIVIDUALES -->
+            <section class="section">
+                <h2>🔧 Tablas de Verdad - Compuertas Individuales</h2>
+                
+                <div class="grid-compuertas">
+                    <!-- COMPUERTA AND -->
+                    <div class="compuerta-card">
+                        <h3>AND (Y Lógico)</h3>
+                        <p><strong>Descripción:</strong> Retorna 1 solo si AMBAS entradas son 1</p>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>A</th>
+                                    <th>B</th>
+                                    <th>Salida</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>0</td>
+                                    <td>0</td>
+                                    <td class="resultado-0">0</td>
+                                </tr>
+                                <tr>
+                                    <td>0</td>
+                                    <td>1</td>
+                                    <td class="resultado-0">0</td>
+                                </tr>
+                                <tr>
+                                    <td>1</td>
+                                    <td>0</td>
+                                    <td class="resultado-0">0</td>
+                                </tr>
+                                <tr>
+                                    <td>1</td>
+                                    <td>1</td>
+                                    <td class="resultado-1">1</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- COMPUERTA OR -->
+                    <div class="compuerta-card">
+                        <h3>OR (O Lógico)</h3>
+                        <p><strong>Descripción:</strong> Retorna 1 si ALGUNA entrada es 1</p>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>A</th>
+                                    <th>B</th>
+                                    <th>Salida</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>0</td>
+                                    <td>0</td>
+                                    <td class="resultado-0">0</td>
+                                </tr>
+                                <tr>
+                                    <td>0</td>
+                                    <td>1</td>
+                                    <td class="resultado-1">1</td>
+                                </tr>
+                                <tr>
+                                    <td>1</td>
+                                    <td>0</td>
+                                    <td class="resultado-1">1</td>
+                                </tr>
+                                <tr>
+                                    <td>1</td>
+                                    <td>1</td>
+                                    <td class="resultado-1">1</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- COMPUERTA NOT -->
+                    <div class="compuerta-card">
+                        <h3>NOT (Negación)</h3>
+                        <p><strong>Descripción:</strong> Invierte el valor de entrada</p>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>A</th>
+                                    <th>Salida</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>0</td>
+                                    <td class="resultado-1">1</td>
+                                </tr>
+                                <tr>
+                                    <td>1</td>
+                                    <td class="resultado-0">0</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- COMPUERTA NAND -->
+                    <div class="compuerta-card">
+                        <h3>NAND (NOT AND)</h3>
+                        <p><strong>Descripción:</strong> Retorna 0 solo si AMBAS entradas son 1</p>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>A</th>
+                                    <th>B</th>
+                                    <th>Salida</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>0</td>
+                                    <td>0</td>
+                                    <td class="resultado-1">1</td>
+                                </tr>
+                                <tr>
+                                    <td>0</td>
+                                    <td>1</td>
+                                    <td class="resultado-1">1</td>
+                                </tr>
+                                <tr>
+                                    <td>1</td>
+                                    <td>0</td>
+                                    <td class="resultado-1">1</td>
+                                </tr>
+                                <tr>
+                                    <td>1</td>
+                                    <td>1</td>
+                                    <td class="resultado-0">0</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- COMPUERTA NOR -->
+                    <div class="compuerta-card">
+                        <h3>NOR (NOT OR)</h3>
+                        <p><strong>Descripción:</strong> Retorna 1 solo si AMBAS entradas son 0</p>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>A</th>
+                                    <th>B</th>
+                                    <th>Salida</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>0</td>
+                                    <td>0</td>
+                                    <td class="resultado-1">1</td>
+                                </tr>
+                                <tr>
+                                    <td>0</td>
+                                    <td>1</td>
+                                    <td class="resultado-0">0</td>
+                                </tr>
+                                <tr>
+                                    <td>1</td>
+                                    <td>0</td>
+                                    <td class="resultado-0">0</td>
+                                </tr>
+                                <tr>
+                                    <td>1</td>
+                                    <td>1</td>
+                                    <td class="resultado-0">0</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- COMPUERTA XOR -->
+                    <div class="compuerta-card">
+                        <h3>XOR (O Exclusivo)</h3>
+                        <p><strong>Descripción:</strong> Retorna 1 si las entradas son DIFERENTES</p>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>A</th>
+                                    <th>B</th>
+                                    <th>Salida</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>0</td>
+                                    <td>0</td>
+                                    <td class="resultado-0">0</td>
+                                </tr>
+                                <tr>
+                                    <td>0</td>
+                                    <td>1</td>
+                                    <td class="resultado-1">1</td>
+                                </tr>
+                                <tr>
+                                    <td>1</td>
+                                    <td>0</td>
+                                    <td class="resultado-1">1</td>
+                                </tr>
+                                <tr>
+                                    <td>1</td>
+                                    <td>1</td>
+                                    <td class="resultado-0">0</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- CIRCUITO COMBINACIONAL -->
+            <section class="section">
+                <h2>🎯 Circuito Combinacional - Control de Acceso</h2>
+                <div class="info-box">
+                    <strong>Fórmula:</strong> Salida = (A AND B) AND (NOT C)<br>
+                    <strong>Combinaciones totales:</strong> 2³ = 8 combinaciones
+                </div>
+
+                <h3>Tabla de Verdad Completa (8 combinaciones)</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th colspan="3">Entradas</th>
+                            <th colspan="2">Operaciones Intermedias</th>
+                            <th colspan="2">Resultado</th>
+                        </tr>
+                        <tr>
+                            <th>A (Auth)</th>
+                            <th>B (Perm)</th>
+                            <th>C (Emer)</th>
+                            <th>A AND B</th>
+                            <th>NOT C</th>
+                            <th>Salida</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>0</td>
+                            <td>0</td>
+                            <td>0</td>
+                            <td class="resultado-0">0</td>
+                            <td class="resultado-1">1</td>
+                            <td class="resultado-0">0</td>
+                            <td class="estado-denegado">✗ No autenticado</td>
+                        </tr>
+                        <tr>
+                            <td>0</td>
+                            <td>0</td>
+                            <td>1</td>
+                            <td class="resultado-0">0</td>
+                            <td class="resultado-0">0</td>
+                            <td class="resultado-0">0</td>
+                            <td class="estado-denegado">✗ No autenticado</td>
+                        </tr>
+                        <tr>
+                            <td>0</td>
+                            <td>1</td>
+                            <td>0</td>
+                            <td class="resultado-0">0</td>
+                            <td class="resultado-1">1</td>
+                            <td class="resultado-0">0</td>
+                            <td class="estado-denegado">✗ No autenticado</td>
+                        </tr>
+                        <tr>
+                            <td>0</td>
+                            <td>1</td>
+                            <td>1</td>
+                            <td class="resultado-0">0</td>
+                            <td class="resultado-0">0</td>
+                            <td class="resultado-0">0</td>
+                            <td class="estado-denegado">✗ No autenticado</td>
+                        </tr>
+                        <tr>
+                            <td>1</td>
+                            <td>0</td>
+                            <td>0</td>
+                            <td class="resultado-0">0</td>
+                            <td class="resultado-1">1</td>
+                            <td class="resultado-0">0</td>
+                            <td class="estado-denegado">✗ Sin permisos</td>
+                        </tr>
+                        <tr>
+                            <td>1</td>
+                            <td>0</td>
+                            <td>1</td>
+                            <td class="resultado-0">0</td>
+                            <td class="resultado-0">0</td>
+                            <td class="resultado-0">0</td>
+                            <td class="estado-denegado">✗ Sin permisos</td>
+                        </tr>
+                        <tr>
+                            <td>1</td>
+                            <td>1</td>
+                            <td>0</td>
+                            <td class="resultado-1">1</td>
+                            <td class="resultado-1">1</td>
+                            <td class="resultado-1">1</td>
+                            <td class="estado-permitido">✓ ACCESO PERMITIDO</td>
+                        </tr>
+                        <tr>
+                            <td>1</td>
+                            <td>1</td>
+                            <td>1</td>
+                            <td class="resultado-1">1</td>
+                            <td class="resultado-0">0</td>
+                            <td class="resultado-0">0</td>
+                            <td class="estado-denegado">✗ EMERGENCIA ACTIVA</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- ESCENARIOS PRÁCTICOS -->
+            <section class="section">
+                <h2>🎬 Simulación de Escenarios Prácticos</h2>
+
+                <div class="escenario">
+                    <h4>📌 Escenario 1: Caso Ideal</h4>
+                    <div class="escenario-content">
+                        <div class="escenario-item">
+                            <span class="escenario-label">Entradas:</span>
+                            <span>A=1 (Autenticado), B=1 (Con permisos), C=0 (Sin emergencia)</span>
+                        </div>
+                        <div class="escenario-item">
+                            <span class="escenario-label">Resultado:</span>
+                            <span class="escenario-resultado resultado-permitido">✓ PERMITIDO</span>
+                        </div>
+                    </div>
+                    <p>El usuario está correctamente autenticado, tiene los permisos necesarios y no hay ninguna situación de emergencia. La puerta se abre.</p>
+                </div>
+
+                <div class="escenario">
+                    <h4>📌 Escenario 2: Alarma de Emergencia Activada</h4>
+                    <div class="escenario-content">
+                        <div class="escenario-item">
+                            <span class="escenario-label">Entradas:</span>
+                            <span>A=1 (Autenticado), B=1 (Con permisos), C=1 (Emergencia activa)</span>
+                        </div>
+                        <div class="escenario-item">
+                            <span class="escenario-label">Resultado:</span>
+                            <span class="escenario-resultado resultado-denegado">✗ DENEGADO</span>
+                        </div>
+                    </div>
+                    <p>Aunque el usuario está autenticado y tiene permisos, hay una alarma de emergencia activa. Por seguridad, se deniega el acceso.</p>
+                </div>
+
+                <div class="escenario">
+                    <h4>📌 Escenario 3: Usuario sin Permisos</h4>
+                    <div class="escenario-content">
+                        <div class="escenario-item">
+                            <span class="escenario-label">Entradas:</span>
+                            <span>A=1 (Autenticado), B=0 (Sin permisos), C=0 (Sin emergencia)</span>
+                        </div>
+                        <div class="escenario-item">
+                            <span class="escenario-label">Resultado:</span>
+                            <span class="escenario-resultado resultado-denegado">✗ DENEGADO</span>
+                        </div>
+                    </div>
+                    <p>El usuario está autenticado pero no tiene los permisos necesarios para acceder. Se deniega el acceso.</p>
+                </div>
+
+                <div class="escenario">
+                    <h4>📌 Escenario 4: Usuario no Autenticado</h4>
+                    <div class="escenario-content">
+                        <div class="escenario-item">
+                            <span class="escenario-label">Entradas:</span>
+                            <span>A=0 (No autenticado), B=1 (Con permisos), C=0 (Sin emergencia)</span>
+                        </div>
+                        <div class="escenario-item">
+                            <span class="escenario-label">Resultado:</span>
+                            <span class="escenario-resultado resultado-denegado">✗ DENEGADO</span>
+                        </div>
+                    </div>
+                    <p>El usuario no está autenticado, aunque tuviera permisos. Se deniega el acceso por seguridad.</p>
+                </div>
+
+                <div class="escenario">
+                    <h4>📌 Escenario 5: Múltiples Fallos</h4>
+                    <div class="escenario-content">
+                        <div class="escenario-item">
+                            <span class="escenario-label">Entradas:</span>
+                            <span>A=0 (No autenticado), B=0 (Sin permisos), C=0 (Sin emergencia)</span>
+                        </div>
+                        <div class="escenario-item">
+                            <span class="escenario-label">Resultado:</span>
+                            <span class="escenario-resultado resultado-denegado">✗ DENEGADO</span>
+                        </div>
+                    </div>
+                    <p>El usuario no está autenticado ni tiene permisos. Se deniega el acceso.</p>
+                </div>
+            </section>
+
+            <!-- RESUMEN DE COMPUERTAS -->
+            <section class="section">
+                <h2>📚 Resumen de Compuertas Implementadas</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Compuerta</th>
+                            <th>Tipo</th>
+                            <th>Operación</th>
+                            <th>Aplicación</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>AND</strong></td>
+                            <td>Básica</td>
+                            <td>Ambas condiciones deben ser verdaderas</td>
+                            <td>Validar múltiples requisitos (autenticación Y permisos)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>OR</strong></td>
+                            <td>Básica</td>
+                            <td>Al menos una condición debe ser verdadera</td>
+                            <td>Activar si ocurre cualquiera de varios eventos</td>
+                        </tr>
+                        <tr>
+                            <td><strong>NOT</strong></td>
+                            <td>Básica</td>
+                            <td>Invierte el valor lógico</td>
+                            <td>Negar una condición (NO emergencia)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>NAND</strong></td>
+                            <td>Compuesta</td>
+                            <td>NOT(AND) - Falso solo si ambas son verdaderas</td>
+                            <td>Verificar que NO se cumplan todas las condiciones</td>
+                        </tr>
+                        <tr>
+                            <td><strong>NOR</strong></td>
+                            <td>Compuesta</td>
+                            <td>NOT(OR) - Verdadero solo si ambas son falsas</td>
+                            <td>Verificar que NINGUNA condición se cumpla</td>
+                        </tr>
+                        <tr>
+                            <td><strong>XOR</strong></td>
+                            <td>Compuesta</td>
+                            <td>Verdadero si los valores son diferentes</td>
+                            <td>Detectar cambios de estado o comparaciones</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+        </div>
+
+        <footer>
+            <p>⚡ Sistema de Compuertas Lógicas | Simulador de Control de Acceso | 2026</p>
+            <p style="font-size: 0.9em; margin-top: 10px;">Desarrollado con HTML5, CSS3 y Lógica Digital</p>
+        </footer>
+    </div>
+</body>
+</html>
